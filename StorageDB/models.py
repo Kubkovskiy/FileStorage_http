@@ -11,4 +11,5 @@ cur.execute("""CREATE TABLE IF NOT EXISTS files(
                         mimeType TEXT,
                         modificationTime TEXT);""")
 conn.commit()
+cur.close()
 conn.close()

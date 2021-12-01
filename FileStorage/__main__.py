@@ -1,5 +1,7 @@
+
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+from FileStorage.methods import get_filename
 
 PORT = 9000
 URL = '127.0.0.1'
@@ -17,17 +19,35 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         self.wfile.write(my_path.encode())
         print(self.client_address)
 
+
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        body = self.rfile.read(content_length)
+        size = int(self.headers['Content-Length'])
+        body = self.rfile.read(size)
+        content_type = self.headers.get_content_type()
+        boundary = self.headers.get_boundary()
+        name = get_filename(boundary, body)
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(b'This is POST request. ')
         self.wfile.write(b'Received: ')
         self.wfile.write(body)
-        with open('file1.jpg', 'wb') as f:
+        with open(f'file1', 'wb') as f:
             f.write(body)
+
+"""
+1)нужно сделать file_id через uuucn,
+2) генерацию имени
+3) модуль времени
+4) прием параметров.
+
+"""
+
+
+
+
+
+
 
 
 def run():
