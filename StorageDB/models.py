@@ -5,7 +5,7 @@ cur = conn.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS files(
                         base_id INT PRIMARY KEY,
                         file_id INT,
-                        name TEXT,
+                        name.document TEXT,
                         tag TEXT,
                         size INT,
                         mimeType TEXT,

@@ -1,9 +1,11 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+"""methods for FileStorage"""
+import os
 
-def get_filename(boundary, body):
-    metadata = body.decode('latin-1').split(boundary)
-    discription = metadata[1].split('\r\n')
-    _, _, filename = discription[1].split(';')
-    index = filename.find('"')
-    name = filename[index+1:-1]
-    return name
+
+def create_dir(path="uploaded_files") -> str:
+    """check is dir created."""
+    if path in os.listdir():
+        return path + '/'
+    os.mkdir(path)
+    return path + '/'
+
