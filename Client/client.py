@@ -9,22 +9,21 @@ def get():
     print(r.text)
 
 
-def post():
-    p = requests.post(URL)
-    print(p.text)
+def post(file):
+    with open(file, 'rb') as f:
+        data = f.read()
+        params = {'name': file, 'tag': 'txt', "file_id": None}
+        r = requests.post(URL, data=data, params=params)
+        print(r.text)
 
 
-def post_form_data(file: str):
+def post_multy(file):
     files = {'file': (file, open(file, 'rb'))}
-    r = requests.post(URL, files=files)
-    print(r.text)
-# post_form_data('12.doc')
+    params = {'name': file, 'tag': 'txt', "file_id": None}
+    r = requests.post(URL, files=files, params=params)
 
-
-def post_post(file):
-
-    files = {'file': (file, open(file, 'rb'), "multipart/form-data")}
-    r = requests.post(URL, files=files)
     print(r.text)
 
-post_post('test.xlsx')
+
+post_multy('test.xlsx')
+post('1 Москва.xlsx')
