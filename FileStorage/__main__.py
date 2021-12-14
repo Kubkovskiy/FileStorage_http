@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from FileStorage_http.StorageDB.DBmethods import DBconnect
-from methods import create_dir, generate_filename, check_name_in_params
+from methods import create_dir
 import re
 import urllib
 
@@ -34,7 +34,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
 
-        # загрузка в ДБ, добавить  проверку по File_id
+        # загрузка в ДБ
         data = {'id': file_id, 'name': name, 'tag': tag, 'mimeType': content_type,
                 'size': size, 'modificationTime': modification_time}
         ad_to_db = db.add_to_db(data)
