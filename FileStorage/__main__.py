@@ -5,7 +5,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from FileStorage_http.StorageDB.DBmethods import DBconnect
 from methods import create_dir, generate_filename, check_name_in_params
 import re
-import uuid
 import urllib
 
 PORT = 9000
