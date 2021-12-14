@@ -26,4 +26,3 @@ def create_dir(path="uploaded_files") -> str:
     return path + '/'
 
 
-

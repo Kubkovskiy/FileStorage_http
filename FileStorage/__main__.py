@@ -27,7 +27,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         params = urllib.parse.parse_qs(self.path[2:])
-        file_id = params['file_id'][0] if 'file_id' in params else uuid.uuid4().hex
+        file_id = params['file_id'][0] if 'file_id' in params else db.return_next_id()
         filename = params['name'][0] if 'name' in params else file_id
         name, execution = os.path.splitext(filename)
         tag = params['tag'][0] if 'tag' in params else None
@@ -36,7 +36,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         modification_time = str(datetime.now())
 
         # загрузка в ДБ, добавить  проверку по File_id
-        data = {'file_id': file_id, 'name': name, 'tag': tag, 'mimeType': content_type,
+        data = {'id': file_id, 'name': name, 'tag': tag, 'mimeType': content_type,
                 'size': size, 'modificationTime': modification_time}
         ad_to_db = db.add_to_db(data)
 
@@ -88,7 +88,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                     else:
                         out.write(pre_line)
                         pre_line = line
-        return f"File with file_id '{file_id}' upload successfully"
+        return f"File upload successfully"
 
 
 def run():
