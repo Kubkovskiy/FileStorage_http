@@ -44,6 +44,7 @@ class DBconnect:
             data = list(params.values())
             self.cursor.execute(query, data)
             self.conn.commit()
+            return params
         except sqlite3.IntegrityError as err:
             if str(err) == 'UNIQUE constraint failed: files.id':
                 query = "UPDATE files SET id=?, name=?, tag=?, size=?, mimeType=?, " \
@@ -51,7 +52,7 @@ class DBconnect:
                 data.append(params['id'])
                 self.cursor.execute(query, data)
                 self.conn.commit()
-                return 'Update successfully'
+                return params
 
     @connect_to_db
     def return_next_id(self) -> str:

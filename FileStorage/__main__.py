@@ -1,6 +1,7 @@
 # FileStorage main file
 from datetime import datetime
 import os
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from FileStorage_http.StorageDB.DBmethods import DBconnect
 from methods import create_dir
@@ -25,6 +26,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         print(self.client_address)
 
     def do_POST(self):
+        self.write_response(201)
         params = urllib.parse.parse_qs(self.path[2:])
         file_id = params['file_id'][0] if 'file_id' in params else db.return_next_id()
         filename = params['name'][0] if 'name' in params else file_id
@@ -37,15 +39,14 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         # загрузка в ДБ
         data = {'id': file_id, 'name': name, 'tag': tag, 'mimeType': content_type,
                 'size': size, 'modificationTime': modification_time}
-        ad_to_db = db.add_to_db(data)
-
+        result = db.add_to_db(data)
+        j = json.dumps(data)
         # upload in dir
         if content_type == 'multipart/form-data':
             self.boundary = self.headers.get_boundary().encode()
             execution = self.get_execution()
             upload_info = self.save_file_to_dir(file_id, execution)
             print(upload_info, "by: ", self.client_address)
-            return self.write_response(201), self.wfile.write(upload_info.encode())
         # if not 'multipart/form-data':
         else:
             file = self.rfile.read(size)
@@ -53,7 +54,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                 f.write(file)
                 response = f"File '{name}'upload successfully!"
                 print(response)
-                return self.write_response(201), self.wfile.write(response.encode())
+        return self.wfile.write(j.encode())
 
     def get_execution(self) -> str:
         """читает Content-Description построчно и возвращает дефолтное расширение"""

@@ -22,7 +22,7 @@ def post_multy(file):
     files = {'file': (file, open(file, 'rb'))}
     params = {'name': file, 'tag': 'txt', "file_id": 1}
     r = requests.post(URL, files=files, params=params)
-    print(r.status_code, r.text)
+    print(r.text)
 
 
 # post_multy('1 Москва.xlsx')
