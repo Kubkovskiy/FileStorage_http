@@ -10,6 +10,7 @@ class DBconnect:
 
         def inner_func(self, *args, **kwargs):
             self.conn = sqlite3.connect(DB_NAME)
+            self.conn.row_factory = sqlite3.Row
             self.cursor = self.conn.cursor()
             try:
                 res = func(self, *args, **kwargs)
@@ -21,8 +22,7 @@ class DBconnect:
         return inner_func
 
     def __init__(self):
-        self.conn = sqlite3.connect(DB_NAME)
-        self.cursor = self.conn.cursor()
+
         self.create_table()
 
     @connect_to_db
@@ -60,3 +60,14 @@ class DBconnect:
         all_id = max(self.cursor.execute(query).fetchall())[0]
 
         return str(all_id + 1)
+
+    @connect_to_db
+    def parse_from_db(self, params: dict):
+        my_dict = {"payload":{}}
+        for key, value in params.items():
+            amount_items = ', '.join('?' * len(value))
+            query = 'SELECT * FROM files WHERE ({0}) in ({1})'.format(key, amount_items)
+            self.cursor.execute(query, value)
+            result = self.cursor.fetchall()
+            my_dict['payload'].update(dict(result[0]))
+        return my_dict

@@ -23,9 +23,10 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if '/api/get' != urlparse(self.path).path:
             return self.write_response(404), self.wfile.write(b"404 Not Found")
         query = parse_qs(urlparse(self.path).query)
-        self.write_response(200)
-        my_path = self.path
-        self.wfile.write(my_path.encode())
+        result = db.parse_from_db(query)
+        result1 = json.dumps(result)
+        self.write_response(200), self.wfile.write(result1.encode())
+
         print(self.client_address)
 
     def do_POST(self):
@@ -35,7 +36,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
                                   environ={'REQUEST_METHOD': 'POST'})
         file = params.getvalue('file')
-        file_id = params.getvalue('file_id') if 'file_id' in params else db.return_next_id()
+        file_id = params.getvalue('id') if 'id' in params else db.return_next_id()
         filename = params['file'].filename
         name, execution = os.path.splitext(filename)
         name = os.path.splitext(filename)[0] if 'name' in params else file_id
