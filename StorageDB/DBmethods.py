@@ -5,7 +5,7 @@ DB_NAME = 'FileStorage.db'
 
 class DBconnect:
 
-    @staticmethod
+
     def connect_to_db(func):
         """connect to DB and create cursor, commit, after will close connection"""
 
@@ -23,7 +23,6 @@ class DBconnect:
         return inner_func
 
     def __init__(self):
-
         self.create_table()
 
     @connect_to_db
@@ -55,7 +54,6 @@ class DBconnect:
                 self.conn.commit()
                 return params
 
-
     def fetch_all(self):
         self.cursor.execute('select * from files')
         res = self.cursor.fetchall()
@@ -75,7 +73,6 @@ class DBconnect:
             return str(all_id + 1)
         finally:
             conn.close()
-
 
     @connect_to_db
     def parse_from_db(self, params: dict = None):

@@ -3,8 +3,6 @@ import requests
 import json
 
 
-
-
 def create_dir(self, path="files_to_upload") -> str:
     """check is dir created."""
     if path in os.listdir():
@@ -24,7 +22,10 @@ def get(file_id: (int, tuple) = None, name: str = None, tag: str = None, size: i
     params = {"name": name, "tag": tag, "id": file_id, "size": size}
     r = requests.get(URL+'/api/get', params=params)
     print(f"\n status code: {r.status_code} \n")
-    print(json.dumps(r.json(), indent=4))
+    try:
+        print(json.dumps(r.json(), indent=4))
+    except:
+        pass
     return r
 
 def post(filename, file_id: int = None, name: str = None, tag: str = None):
@@ -38,10 +39,32 @@ def post(filename, file_id: int = None, name: str = None, tag: str = None):
     print(json.dumps(r.json(), indent=4))
 
 
+def post_params(filename, file_id: int = None, name: str = None, tag: str = None):
+    """Method POST"""
+    if name:
+        filename = name
+    # files = {"file": (filename, open(FILES_TO_UPLOAD_PATH + filename, 'rb'))}
+    with open(FILES_TO_UPLOAD_PATH + filename, 'rb') as f:
+        data = f.read()
+        params = {"name": filename, "tag": tag, "id": file_id}
+        r = requests.post(URL + '/api/upload', params=params, data=data)
+
+
+    # print(f"\n status code: {r.status_code} \n")
+    # print(json.dumps(r.json(), indent=4))
+
+
+# def post(file):
+#     with open(file, 'rb') as f:
+#         data = f.read()
+#         params = {'name': file, 'tag': 'txt', "file_id": None}
+#         r = requests.post(URL, data=data, params=params)
+#         print(r.text)
+
 # get(size=26186)
 # get(file_id=(1, 2, 3), size=549)
-
 # post('все опоры.txt')
 # post('file_storage_good.zip')
-# post('1 Москва.xlsx')
+# post('1.doc')
+post_params('1.doc')
 

@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from FileStorage_http.StorageDB.DBmethods import DBconnect
+from StorageDB.DBmethods import DBconnect
 from methods import create_dir
 from urllib.parse import urlparse, parse_qs
 import cgi
@@ -21,7 +21,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if payload:
             if isinstance(payload, (bytes, int)):
                 self.wfile.write(payload)
-            elif isinstance(payload, (str)):
+            elif isinstance(payload, str):
                 self.wfile.write(payload.encode())
             else:
                 raise TypeError('pass')
@@ -38,21 +38,32 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         return self.write_response(200, result_json)
 
     def do_POST(self):
-        if self.path != '/api/upload':
-            message = b"{'message': '404 Not Found'}"
-            return self.write_response(404, message)
 
-        params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
-                                  environ={'REQUEST_METHOD': 'POST'})
-        file = params.getvalue('file')
-        file_id = params.getvalue('id') if 'id' in params else db.return_next_id()
-        filename = params['file'].filename
-        name, execution = os.path.splitext(filename)
-        name = os.path.splitext(filename)[0] if 'name' in params else file_id
-        tag = params.getvalue('tag') if 'tag' in params else None
+        # if self.path != '/api/upload':
+        #     message = b"{'message': '404 Not Found'}"
+        #     return self.write_response(404, message)
+
+        params = parse_qs(urlparse(self.path).query)
         size = int(self.headers['content-length'])
         content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
+
+        if len(params) == 0:
+            params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
+                                      environ={'REQUEST_METHOD': 'POST'})
+            file = params.getvalue('file')
+            file_id = params.getvalue('id') if 'id' in params else db.return_next_id()
+            filename = params['file'].filename
+            name, execution = os.path.splitext(filename)
+            name = os.path.splitext(filename)[0] if 'name' in params else file_id
+            tag = params.getvalue('tag') if 'tag' in params else None
+        else:
+            file = self.rfile.read(size)
+            file_id = params['file_id'][0] if 'file_id' in params else db.return_next_id()
+            filename = params['name'][0] if 'name' in params else file_id
+            name, execution = os.path.splitext(filename)
+            tag = params['tag'][0] if 'tag' in params else None
+
 
         # загрузка в ДБ
         data = {'id': file_id, 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
