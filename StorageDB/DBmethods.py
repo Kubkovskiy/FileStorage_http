@@ -4,6 +4,7 @@ DB_NAME = 'FileStorage.db'
 
 
 class DBconnect:
+
     @staticmethod
     def connect_to_db(func):
         """connect to DB and create cursor, commit, after will close connection"""
@@ -54,20 +55,46 @@ class DBconnect:
                 self.conn.commit()
                 return params
 
-    @connect_to_db
-    def return_next_id(self) -> str:
-        query = 'SELECT id FROM files'
-        all_id = max(self.cursor.execute(query).fetchall())[0]
 
-        return str(all_id + 1)
+    def fetch_all(self):
+        self.cursor.execute('select * from files')
+        res = self.cursor.fetchall()
+        result = [dict(i) for i in res]
+        return result
+
+    @staticmethod
+    def return_next_id() -> str:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        try:
+            query = 'SELECT id FROM files'
+            all_id = cursor.execute(query).fetchall()
+            if len(all_id) == 0:
+                return '1'
+            all_id = max(cursor.execute(query).fetchall())[0]
+            return str(all_id + 1)
+        finally:
+            conn.close()
+
 
     @connect_to_db
-    def parse_from_db(self, params: dict):
-        my_dict = {"payload":{}}
+    def parse_from_db(self, params: dict = None):
+        if not params:
+            return self.fetch_all()
+        query_base = 'SELECT * FROM files WHERE '
+        my_filter = ''
+        count = 1
+        values = []
+        result_dict = {}
         for key, value in params.items():
-            amount_items = ', '.join('?' * len(value))
-            query = 'SELECT * FROM files WHERE ({0}) in ({1})'.format(key, amount_items)
-            self.cursor.execute(query, value)
-            result = self.cursor.fetchall()
-            my_dict['payload'].update(dict(result[0]))
-        return my_dict
+            my_filter += f'{key} in ({", ".join("?" * len(value))})'
+            for i in value:
+                values.append(i)
+            if count < len(params):
+                my_filter += ' AND '
+                count += 1
+        query = query_base + my_filter
+        self.cursor.execute(query, values)
+        res = self.cursor.fetchall()
+        result = [dict(i) for i in res]
+        return result

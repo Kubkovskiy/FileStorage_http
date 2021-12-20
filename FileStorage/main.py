@@ -15,23 +15,32 @@ db = DBconnect()
 
 
 class MyAwesomeHandler(BaseHTTPRequestHandler):
-    def write_response(self, code: int):
+    def write_response(self, code: int, payload: any = None):
         self.send_response(code)
         self.end_headers()
+        if payload:
+            if isinstance(payload, (bytes, int)):
+                self.wfile.write(payload)
+            elif isinstance(payload, (str)):
+                self.wfile.write(payload.encode())
+            else:
+                raise TypeError('pass')
 
     def do_GET(self):
         if '/api/get' != urlparse(self.path).path:
             return self.write_response(404), self.wfile.write(b"404 Not Found")
         query = parse_qs(urlparse(self.path).query)
         result = db.parse_from_db(query)
-        result1 = json.dumps(result)
-        self.write_response(200), self.wfile.write(result1.encode())
-
-        print(self.client_address)
+        result_json = json.dumps(result).encode()
+        if len(result) == 0:
+            message = b"{'message': 'No results =('}"
+            return self.write_response(400, message)
+        return self.write_response(200, result_json)
 
     def do_POST(self):
         if self.path != '/api/upload':
-            return self.write_response(404), self.wfile.write(b"404 Not Found")
+            message = b"{'message': '404 Not Found'}"
+            return self.write_response(404, message)
 
         params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
                                   environ={'REQUEST_METHOD': 'POST'})
@@ -54,14 +63,24 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             f.write(file)
             response = f"File '{name}'upload successfully!"
             print(response)
-        return self.write_response(201), self.wfile.write(result.encode())
+        return self.write_response(201, result)
 
 
-def run():
-    print('server started')
+def runserver():
+    try:
+        print('http server is starting...')
+        server_address = (URL, PORT)
+        server = HTTPServer(server_address, MyAwesomeHandler)
+        server.serve_forever()
+    except KeyboardInterrupt:
+        server.server_close()
+
+
+def stopserver():
     server_address = (URL, PORT)
     server = HTTPServer(server_address, MyAwesomeHandler)
-    server.serve_forever()
+    server.server_close()
 
 
-run()
+if __name__ == '__main__':
+    runserver()
