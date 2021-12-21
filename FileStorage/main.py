@@ -27,28 +27,26 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                 raise TypeError('pass')
 
     def do_GET(self):
-        if '/api/get' != urlparse(self.path).path:
-            return self.write_response(404), self.wfile.write(b"404 Not Found")
         query = parse_qs(urlparse(self.path).query)
+        if not self.path_valid():
+            return self.write_response(404, b"404 Not Found")
         result = db.parse_from_db(query)
         result_json = json.dumps(result).encode()
         if len(result) == 0:
-            message = b"{'message': 'No results =('}"
+            message = b'{"message": "No results =("}'
             return self.write_response(400, message)
         return self.write_response(200, result_json)
 
     def do_POST(self):
 
-        # if self.path != '/api/upload':
-        #     message = b"{'message': '404 Not Found'}"
-        #     return self.write_response(404, message)
-
-        params = parse_qs(urlparse(self.path).query)
+        if not self.path_valid():
+            message = b"{'message': '404 Not Found'}"
+            return self.write_response(404, message)
         size = int(self.headers['content-length'])
         content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
 
-        if len(params) == 0:
+        if content_type in ['multipart/form-data', 'application/x-www-form-urlencoded']:
             params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
                                       environ={'REQUEST_METHOD': 'POST'})
             file = params.getvalue('file')
@@ -57,13 +55,14 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             name, execution = os.path.splitext(filename)
             name = os.path.splitext(filename)[0] if 'name' in params else file_id
             tag = params.getvalue('tag') if 'tag' in params else None
+
         else:
+            params = parse_qs(urlparse(self.path).query)
             file = self.rfile.read(size)
             file_id = params['file_id'][0] if 'file_id' in params else db.return_next_id()
             filename = params['name'][0] if 'name' in params else file_id
             name, execution = os.path.splitext(filename)
             tag = params['tag'][0] if 'tag' in params else None
-
 
         # загрузка в ДБ
         data = {'id': file_id, 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
@@ -75,6 +74,34 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             response = f"File '{name}'upload successfully!"
             print(response)
         return self.write_response(201, result)
+
+    def do_DELETE(self):
+        if not self.path_valid():
+            return self.write_response(404, b'{"message": "404 Not Found"}')
+        query = parse_qs(urlparse(self.path).query)
+        # if len(query) == 0:
+        #     message = b'{"message": "bad request =(, write any parameters"}'
+        #     return self.write_response(400, message)
+        result = db.delete_from_db(query)
+        if result == 0:
+            message = b'{"message": "No results =("}'
+            return self.write_response(400, message)
+        message = f'{result} files deleted'
+        return self.write_response(200, message.encode())
+
+
+    def path_valid(self):
+        valid_api = ['/api/get', '/api/post', '/api/delete', '/api/download']
+        query = parse_qs(urlparse(self.path).query)
+        if query:
+            index_questionMark = self.path.find('?')
+            my_path = self.path[:index_questionMark]
+            return my_path in valid_api
+        return self.path in valid_api
+
+
+
+
 
 
 def runserver():

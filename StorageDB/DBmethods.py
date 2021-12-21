@@ -95,3 +95,26 @@ class DBconnect:
         res = self.cursor.fetchall()
         result = [dict(i) for i in res]
         return result
+
+    @connect_to_db
+    def delete_from_db(self, params: dict = None):
+        query_select = 'SELECT * FROM files WHERE '
+        query_delete = 'DELETE FROM files WHERE '
+        my_filter = ''
+        count = 1
+        values = []
+        result_dict = {}
+        for key, value in params.items():
+            my_filter += f'{key} in ({", ".join("?" * len(value))})'
+            for i in value:
+                values.append(i)
+            if count < len(params):
+                my_filter += ' AND '
+                count += 1
+        query = query_delete + my_filter
+        self.cursor.execute(query_select+my_filter, values)
+        res = self.cursor.fetchall()
+        result = len(res)
+        self.cursor.execute(query, values)
+        self.conn.commit()
+        return result

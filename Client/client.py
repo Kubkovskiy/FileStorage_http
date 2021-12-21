@@ -29,7 +29,7 @@ def get(file_id: (int, tuple) = None, name: str = None, tag: str = None, size: i
     return r
 
 def post(filename, file_id: int = None, name: str = None, tag: str = None):
-    """Method POST"""
+    """Method POST where params sent in data"""
     if name:
         filename = name
     files = {"file": (filename, open(FILES_TO_UPLOAD_PATH + filename, 'rb'))}
@@ -40,7 +40,7 @@ def post(filename, file_id: int = None, name: str = None, tag: str = None):
 
 
 def post_params(filename, file_id: int = None, name: str = None, tag: str = None):
-    """Method POST"""
+    """Method POST where params sent in params"""
     if name:
         filename = name
     # files = {"file": (filename, open(FILES_TO_UPLOAD_PATH + filename, 'rb'))}
@@ -50,7 +50,11 @@ def post_params(filename, file_id: int = None, name: str = None, tag: str = None
         r = requests.post(URL + '/api/upload', params=params, data=data)
 
 
-    # print(f"\n status code: {r.status_code} \n")
+def delete(file_id = None, name: str = None, tag: str = None, mime_type: str = None):
+    """Method DELETE"""
+    params = {"name": name, "tag": tag, "id": file_id, "mimeType": mime_type}
+    r = requests.delete(URL + '/api/delete', params=params)
+    print(f"\n status code: {r.status_code}, {r.text} \n")
     # print(json.dumps(r.json(), indent=4))
 
 
@@ -65,6 +69,7 @@ def post_params(filename, file_id: int = None, name: str = None, tag: str = None
 # get(file_id=(1, 2, 3), size=549)
 # post('все опоры.txt')
 # post('file_storage_good.zip')
-# post('1.doc')
-post_params('1.doc')
+# post('6.png')
+delete(name="6")
+
 
