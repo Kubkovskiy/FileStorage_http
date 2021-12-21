@@ -14,6 +14,20 @@ UPLOADED_FILES_PATH = create_dir('uploaded_files')
 db = DBconnect()
 
 
+def delete_from_dir(result: [dict]) -> int:
+    """take dict, deleting by file_id. return amount of deleted files"""
+    count = len(result)
+    for i in result:
+        name_from_db = str(i['id'])
+        for file in os.scandir(UPLOADED_FILES_PATH):
+            name, execution = os.path.splitext(file.name)
+            if name == name_from_db:
+                os.remove(file.path)
+                print(f"{file.name} was deleted successfully")
+                break
+    return count
+
+
 class MyAwesomeHandler(BaseHTTPRequestHandler):
     def write_response(self, code: int, payload: any = None):
         self.send_response(code)
@@ -83,15 +97,15 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         #     message = b'{"message": "bad request =(, write any parameters"}'
         #     return self.write_response(400, message)
         result = db.delete_from_db(query)
-        if result == 0:
-            message = b'{"message": "No results =("}'
-            return self.write_response(400, message)
-        message = f'{result} files deleted'
+        if not result:
+            return self.write_response(400, b'{"message": "No results =("}')
+        amount_del_files = delete_from_dir(result)
+        message = f'{amount_del_files} files deleted'
         return self.write_response(200, message.encode())
 
 
     def path_valid(self):
-        valid_api = ['/api/get', '/api/post', '/api/delete', '/api/download']
+        valid_api = ['/api/get', '/api/upload', '/api/delete', '/api/download']
         query = parse_qs(urlparse(self.path).query)
         if query:
             index_questionMark = self.path.find('?')

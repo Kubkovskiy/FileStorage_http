@@ -5,7 +5,6 @@ DB_NAME = 'FileStorage.db'
 
 class DBconnect:
 
-
     def connect_to_db(func):
         """connect to DB and create cursor, commit, after will close connection"""
 
@@ -111,10 +110,9 @@ class DBconnect:
             if count < len(params):
                 my_filter += ' AND '
                 count += 1
-        query = query_delete + my_filter
-        self.cursor.execute(query_select+my_filter, values)
+        self.cursor.execute(query_select + my_filter, values)
         res = self.cursor.fetchall()
-        result = len(res)
-        self.cursor.execute(query, values)
+        result = [dict(i) for i in res]
+        self.cursor.execute(query_delete + my_filter, values)
         self.conn.commit()
         return result
