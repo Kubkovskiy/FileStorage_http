@@ -3,7 +3,7 @@ import requests
 import json
 
 
-def create_dir(self, path="files_to_upload") -> str:
+def create_dir(path="files_to_upload") -> str:
     """check is dir created."""
     if path in os.listdir():
         return path + '/'
@@ -14,19 +14,21 @@ def create_dir(self, path="files_to_upload") -> str:
 PORT = 9000
 URL = 'http://127.0.0.1:{}'.format(PORT)
 FILES_TO_UPLOAD_PATH = create_dir('files_to_upload')
+FILES_TO_DOWNLOAD_PATH = create_dir('files_to_download')
 
 
 def get(file_id: (int, tuple) = None, name: str = None, tag: str = None, size: int = None):
     """Метод GET. Если без параметров- запрашивает все файлы.
-    если параметру соответсвует несколько значений - передавать в виде tuple"""
+    если параметру соответствует несколько значений - передавать в виде tuple"""
     params = {"name": name, "tag": tag, "id": file_id, "size": size}
-    r = requests.get(URL+'/api/get', params=params)
+    r = requests.get(URL + '/api/get', params=params)
     print(f"\n status code: {r.status_code} \n")
     try:
         print(json.dumps(r.json(), indent=4))
     except:
         pass
     return r
+
 
 def post(filename, file_id: int = None, name: str = None, tag: str = None):
     """Method POST where params sent in data"""
@@ -42,6 +44,7 @@ def post(filename, file_id: int = None, name: str = None, tag: str = None):
     except:
         print(r.text)
     return r
+
 
 def post_params(filename, file_id: int = None, name: str = None, tag: str = None):
     """Method POST where params sent in params"""
@@ -59,7 +62,7 @@ def post_params(filename, file_id: int = None, name: str = None, tag: str = None
         return r
 
 
-def delete(file_id = None, name: str = None, tag: str = None, size: int = None, mime_type: str = None):
+def delete(file_id=None, name: str = None, tag: str = None, size: int = None, mime_type: str = None):
     """Method DELETE"""
     params = {"name": name, "tag": tag, "id": file_id, "mimeType": mime_type, 'size': size}
     r = requests.delete(URL + '/api/delete', params=params)
@@ -68,18 +71,23 @@ def delete(file_id = None, name: str = None, tag: str = None, size: int = None, 
     # print(json.dumps(r.json(), indent=4))
 
 
-# def post(file):
-#     with open(file, 'rb') as f:
-#         data = f.read()
-#         params = {'name': file, 'tag': 'txt', "file_id": None}
-#         r = requests.post(URL, data=data, params=params)
-#         print(r.text)
-
-# get(size=26186)
-# get(file_id=(1, 2, 3), size=549)
-# post('все опоры.txt')
-# post('file_storage_good.zip')
-# post('6.png')
-# delete(name="6")
-
-
+def download(file_id: int):
+    """Метод DOWNLOAD. принимает один параметр - id.
+    если параметру соответствует несколько значений - передавать в виде tuple"""
+    params = {"id": file_id}
+    r = requests.get(URL + '/api/download', params=params)
+    print(f"\n status code: {r.status_code} \n")
+    if r.status_code == 200:
+        try:
+            filename = r.headers.get('Content-Disposition')[9:]
+            with open(FILES_TO_DOWNLOAD_PATH + filename, 'wb') as f:
+                f.write(r.content)
+                print(f'File {filename} downloaded successfully!')
+                return r
+        except:
+            pass
+    else:
+        try:
+            print(json.dumps(r.json(), indent=4))
+        except:
+            pass
