@@ -1,8 +1,6 @@
 """methods for FileStorage"""
 import os
 
-from FileStorage.main import UPLOADED_FILES_PATH
-
 
 def create_dir(path="uploaded_files") -> str:
     """check is dir created."""
@@ -39,3 +37,6 @@ def query_not_valid(query: dict):
     for param in query.keys():
         if param not in valid_query:
             return True
+
+
+UPLOADED_FILES_PATH = create_dir('uploaded_files')

@@ -3,14 +3,14 @@ from datetime import datetime
 import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from StorageDB.DBmethods import DBconnect
-from methods import create_dir, get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir
+from FileStorage.DBmethods import DBconnect
+from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir, UPLOADED_FILES_PATH
 from urllib.parse import urlparse, parse_qs
 import cgi
 
 PORT = 9000
 URL = '127.0.0.1'
-UPLOADED_FILES_PATH = create_dir('uploaded_files')
+
 db = DBconnect()
 
 
@@ -80,7 +80,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         size = int(self.headers['content-length'])
         content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
-
+        # Eсли тип form-data то параметры переданные в params - игнорируются
         if content_type in ['multipart/form-data', 'application/x-www-form-urlencoded']:
             params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
                                       environ={'REQUEST_METHOD': 'POST'})
