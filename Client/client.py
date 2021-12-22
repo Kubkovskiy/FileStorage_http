@@ -36,8 +36,12 @@ def post(filename, file_id: int = None, name: str = None, tag: str = None):
     payload = {"name": filename, "tag": tag, "id": file_id}
     r = requests.post(URL + '/api/upload', files=files, data=payload)
     print(f"\n status code: {r.status_code} \n")
-    print(json.dumps(r.json(), indent=4))
-
+    # print(json.dumps(r.json(), indent=4))
+    try:
+        print(json.dumps(r.json(), indent=4))
+    except:
+        print(r.text)
+    return r
 
 def post_params(filename, file_id: int = None, name: str = None, tag: str = None):
     """Method POST where params sent in params"""
@@ -48,13 +52,19 @@ def post_params(filename, file_id: int = None, name: str = None, tag: str = None
         data = f.read()
         params = {"name": filename, "tag": tag, "id": file_id}
         r = requests.post(URL + '/api/upload', params=params, data=data)
+        try:
+            print(json.dumps(r.json(), indent=4))
+        except:
+            pass
+        return r
 
 
 def delete(file_id = None, name: str = None, tag: str = None, size: int = None, mime_type: str = None):
     """Method DELETE"""
     params = {"name": name, "tag": tag, "id": file_id, "mimeType": mime_type, 'size': size}
     r = requests.delete(URL + '/api/delete', params=params)
-    print(f"\n status code: {r.status_code}, {r.text} \n")
+    # print(f"\n status code: {r.status_code}, {r.text} \n")
+    print(r.text)
     # print(json.dumps(r.json(), indent=4))
 
 

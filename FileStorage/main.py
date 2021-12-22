@@ -3,6 +3,10 @@ from datetime import datetime
 import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from io import BytesIO
+
+from starlette.responses import FileResponse
+
 from StorageDB.DBmethods import DBconnect
 from methods import create_dir
 from urllib.parse import urlparse, parse_qs
@@ -14,21 +18,38 @@ UPLOADED_FILES_PATH = create_dir('uploaded_files')
 db = DBconnect()
 
 
+def get_name_from_file_id(file_id):
+    for file in os.scandir(UPLOADED_FILES_PATH):
+        name, execution = os.path.splitext(file.name)
+        if name == str(file_id):
+            return file.path
+
+
 def delete_from_dir(result: [dict]) -> int:
     """take dict, deleting by file_id. return amount of deleted files"""
     count = len(result)
     for i in result:
-        name_from_db = str(i['id'])
-        for file in os.scandir(UPLOADED_FILES_PATH):
-            name, execution = os.path.splitext(file.name)
-            if name == name_from_db:
-                os.remove(file.path)
-                print(f"{file.name} was deleted successfully")
-                break
+        name_from_db = get_name_from_file_id(i['id'])
+        os.remove(name_from_db)
+        print(f"{name_from_db} was deleted successfully")
     return count
 
 
+def path_not_valid(path):
+    valid_api = ['/api/get', '/api/upload', '/api/delete', '/api/download']
+    if path not in valid_api:
+        return True
+
+
+def query_not_valid(query: dict):
+    valid_query = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime', '']
+    for param in query.keys():
+        if param not in valid_query:
+            return True
+
+
 class MyAwesomeHandler(BaseHTTPRequestHandler):
+
     def write_response(self, code: int, payload: any = None):
         self.send_response(code)
         self.end_headers()
@@ -40,22 +61,56 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             else:
                 raise TypeError('pass')
 
-    def do_GET(self):
+    def parse_query(self):
+        """parse query and check is query valid"""
         query = parse_qs(urlparse(self.path).query)
-        if not self.path_valid():
-            return self.write_response(404, b"404 Not Found")
+        if query_not_valid(query):
+            return False
+        return query
+
+    def do_GET(self):
+        global file
+        query = parse_qs(urlparse(self.path).query)
+        if query_not_valid(query):
+            message = b'{"message": "bad request, params could be only (id, name, tag, size,\
+                                                            mimeType, modificationTime)"}'
+            return self.write_response(404, message)
+        path = urlparse(self.path).path
+        if path_not_valid(path):
+            return self.write_response(404, b'{"message": "404 Not Found"}')
         result = db.parse_from_db(query)
-        result_json = json.dumps(result).encode()
         if len(result) == 0:
             message = b'{"message": "No results =("}'
             return self.write_response(400, message)
+        # пока подразумеваем загрузку по 1 файлу
+        if path == '/api/download':
+            if len(query) > 1 or 'id' not in query.keys():
+                message = b'{"message": "bad request, params could be only one id"}'
+                return self.write_response(404, message)
+            result = result[0]
+            if len(result) == 0:
+                return self.write_response(404, b'{"message": "404 Not Found"}')
+            filename = get_name_from_file_id(result['id'])
+            base_name = os.path.basename(filename)
+            try:
+                with open(filename, 'rb') as f:
+                    body = f.read()
+                file = bytes(body)
+            except:
+                pass
+            self.send_response(200, "OK")
+            self.send_header("Content-Type", result['mimeType'])
+            self.send_header("Content-Disposition", 'filename={0}'.format(base_name))
+            self.end_headers()
+            return self.wfile.write(file)
+
+        result_json = json.dumps(result).encode()
         return self.write_response(200, result_json)
 
     def do_POST(self):
-
-        if not self.path_valid():
-            message = b"{'message': '404 Not Found'}"
-            return self.write_response(404, message)
+        path = urlparse(self.path).path
+        if path_not_valid(path):
+            return self.write_response(404, b'{"message": "404 Not Found"}')
         size = int(self.headers['content-length'])
         content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
@@ -71,12 +126,16 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             tag = params.getvalue('tag') if 'tag' in params else None
 
         else:
-            params = parse_qs(urlparse(self.path).query)
+            query = parse_qs(urlparse(self.path).query)
+            if query_not_valid(query):
+                message = b'{"message": "bad request, params could be only (id, name, tag, size,\
+                                                                        mimeType, modificationTime)"}'
+                return self.write_response(404, message)
             file = self.rfile.read(size)
-            file_id = params['file_id'][0] if 'file_id' in params else db.return_next_id()
-            filename = params['name'][0] if 'name' in params else file_id
+            file_id = query['file_id'][0] if 'file_id' in query else db.return_next_id()
+            filename = query['name'][0] if 'name' in query else file_id
             name, execution = os.path.splitext(filename)
-            tag = params['tag'][0] if 'tag' in params else None
+            tag = query['tag'][0] if 'tag' in query else None
 
         # загрузка в ДБ
         data = {'id': file_id, 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
@@ -90,32 +149,21 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         return self.write_response(201, result)
 
     def do_DELETE(self):
-        if not self.path_valid():
+        path = urlparse(self.path).path
+        if path_not_valid(path):
             return self.write_response(404, b'{"message": "404 Not Found"}')
-        query = parse_qs(urlparse(self.path).query)
-        # if len(query) == 0:
-        #     message = b'{"message": "bad request =(, write any parameters"}'
-        #     return self.write_response(400, message)
+        query = self.parse_query()
+        if not query or len(query) == 0:
+            message = b'{"message": "bad request, params could be only (id, name, tag, size,\
+                                                                    mimeType, modificationTime)"}'
+            return self.write_response(404, message)
         result = db.delete_from_db(query)
         if not result:
             return self.write_response(400, b'{"message": "No results =("}')
         amount_del_files = delete_from_dir(result)
-        message = f'{amount_del_files} files deleted'
-        return self.write_response(200, message.encode())
-
-
-    def path_valid(self):
-        valid_api = ['/api/get', '/api/upload', '/api/delete', '/api/download']
-        query = parse_qs(urlparse(self.path).query)
-        if query:
-            index_questionMark = self.path.find('?')
-            my_path = self.path[:index_questionMark]
-            return my_path in valid_api
-        return self.path in valid_api
-
-
-
-
+        message = {"message": "{0} files deleted".format(amount_del_files)}
+        message_json = json.dumps(message)
+        return self.write_response(200, message_json)
 
 
 def runserver():
