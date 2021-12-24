@@ -14,7 +14,7 @@ def create_dir(path="files_to_upload") -> str:
 PORT = 9000
 URL = 'http://127.0.0.1:{}'.format(PORT)
 FILES_TO_UPLOAD_PATH = create_dir('files_to_upload')
-FILES_TO_DOWNLOAD_PATH = create_dir('files_to_download')
+DOWNLOAD_PATH = create_dir('downloaded_files')
 
 
 def get(file_id: (int, tuple) = None, name: str = None, tag: str = None, size: int = None):
@@ -80,7 +80,7 @@ def download(file_id: int):
     if r.status_code == 200:
         try:
             filename = r.headers.get('Content-Disposition')[9:]
-            with open(FILES_TO_DOWNLOAD_PATH + filename, 'wb') as f:
+            with open(DOWNLOAD_PATH + filename, 'wb') as f:
                 f.write(r.content)
                 print(f'File {filename} downloaded successfully!')
                 return r
