@@ -73,7 +73,7 @@ class DBconnect:
             if len(all_id) == 0:
                 return '1'
             all_id = max(cursor.execute(query).fetchall())[0]
-            return str(all_id + 1)
+            return all_id + 1
         finally:
             conn.close()
 

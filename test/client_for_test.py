@@ -21,6 +21,7 @@ class Client:
         self.API_POST = '/api/upload'
         self.API_DELETE = '/api/delete'
         self.API_DOWNLOAD = '/api/download'
+        self.response = None
 
 
     def get(self, file_id: (int, tuple) = None, name: str = None, tag: str = None, size: int = None):
@@ -28,11 +29,10 @@ class Client:
         если параметру соответствует несколько значений - передавать в виде tuple"""
         params = {"name": name, "tag": tag, "id": file_id, "size": size}
         response = requests.get(self.URL + self.API_GET, params=params)
-        print(f"\n status code: {response.status_code} \n")
         return response
 
 
-    def post(self, filename, file_id: int = None, name: str = None, tag: str = None):
+    def post_form_data(self, filename, file_id: int = None, name: str = None, tag: str = None):
         """Method POST where params sent in data"""
         if not name:
             name = filename
@@ -44,11 +44,11 @@ class Client:
 
     def post_params(self, filename, file_id: int = None, name: str = None, tag: str = None):
         """Method POST where params sent in params"""
-        if name:
-            filename = name
+        if not name:
+            name = filename
         with open(self.FILES_TO_UPLOAD_PATH + filename, 'rb') as f:
             data = f.read()
-            params = {"name": filename, "tag": tag, "id": file_id}
+            params = {"name": name, "tag": tag, "id": file_id}
             r = requests.post(self.URL + self.API_POST, params=params, data=data)
             return r
 
@@ -83,6 +83,12 @@ class Client:
         except:
             print('=== The response not contains json ===')
             print(response.text)
+
+
+    @staticmethod
+    def get_id_from_response(response):
+        return response.json()['id']
+
 
     def files_in_folder(self):
         my_dir = os.scandir(self.FILES_TO_UPLOAD_PATH)

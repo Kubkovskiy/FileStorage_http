@@ -35,7 +35,6 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         return query
 
     def do_GET(self):
-        global file
         query = parse_qs(urlparse(self.path).query)
         if query_not_valid(query):
             message = b'{"message": "bad request, params could be only (id, name, tag, size,\
@@ -98,17 +97,18 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                                                                         mimeType, modificationTime)"}'
                 return self.write_response(404, message)
             file = self.rfile.read(size)
-            file_id = query['file_id'][0] if 'file_id' in query else db.return_next_id()
-            filename = query['name'][0] if 'name' in query else file_id
+            file_id = int(query['id'][0]) if 'id' in query else db.return_next_id()
+            filename = query['name'][0] if 'name' in query else str(file_id)
             name, execution = os.path.splitext(filename)
             tag = query['tag'][0] if 'tag' in query else None
 
         # загрузка в ДБ
-        data = {'id': file_id, 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
+        data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
                 'modificationTime': modification_time}
         result = json.dumps(db.add_to_db(data))
+
         # upload in dir
-        with open(UPLOADED_FILES_PATH + file_id + execution, 'wb') as f:
+        with open(UPLOADED_FILES_PATH + str(file_id) + execution, 'wb') as f:
             f.write(file)
             response = f"File '{name}'upload successfully!"
             print(response)
