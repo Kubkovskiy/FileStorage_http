@@ -28,7 +28,8 @@ class Client:
         self.response = None
 
 
-    def get(self, file_id: (int, tuple) = None, name: str = None, tag: str = None, size: int = None):
+    def get(self, file_id: (int, tuple) = None, name: (str, tuple) = None,
+            tag: (str, tuple) = None, size: (int, tuple) = None):
         """Метод GET. Если без параметров- запрашивает все файлы.
         если параметру соответствует несколько значений - передавать в виде tuple"""
         params = {"name": name, "tag": tag, "id": file_id, "size": size}
