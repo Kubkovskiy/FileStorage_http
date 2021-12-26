@@ -1,10 +1,11 @@
 from unittest import TestCase
-from client_for_test import Client
+from test.client_for_test import Client
 
 clt = Client()
 
 
 class TestPost(TestCase):
+    """Tests for upload where parameters are passed in the query string"""
     upload_files = set()
 
     @classmethod
@@ -13,8 +14,8 @@ class TestPost(TestCase):
         clt.delete(tuple(TestPost.upload_files))
 
     def setUp(self) -> None:
-        files = clt.files_in_folder()
         """check there are files in the folder"""
+        files = clt.files_in_folder()
         self.assertNotEqual(len(files), 0, 'THERE ARE NO FILES TO UPLOAD TO THE FILE STORAGE')
 
     def tearDown(self) -> None:
@@ -50,6 +51,7 @@ class TestPost(TestCase):
 
 
 class TestPostFormData(TestCase):
+    """Tests for upload where parameters are passed in the request body"""
     upload_files = set()
 
     @classmethod

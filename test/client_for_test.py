@@ -3,12 +3,16 @@ import requests
 import json
 
 
-def create_dir(path="files_to_upload") -> str:
+def create_dir(dir_name="files_to_upload") -> str:
+    f"""check is there dir {dir_name}. and create if it's not"""
+    full_path = os.getcwd()
+    if os.path.basename(full_path) != 'test':
+        os.chdir('test')
     """check is dir created."""
-    if path in os.listdir():
-        return path + '/'
-    os.mkdir(path)
-    return path + '/'
+    if dir_name in os.listdir():
+        return dir_name + '/'
+    os.mkdir(dir_name)
+    return dir_name + '/'
 
 
 class Client:
@@ -51,6 +55,11 @@ class Client:
             params = {"name": name, "tag": tag, "id": file_id}
             r = requests.post(self.URL + self.API_POST, params=params, data=data)
             return r
+
+
+    def upload_all_files_from_dir(self):
+        file_list = os.listdir()
+        return file_list
 
 
     def delete(self, file_id=None, name: str = None, tag: str = None, size: int = None, mime_type: str = None):
@@ -103,3 +112,6 @@ class Client:
         if response.status_code == 200:
             for i in response.json():
                 self.delete(i['id'])
+
+
+a = Client()
