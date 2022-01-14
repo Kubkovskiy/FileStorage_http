@@ -134,7 +134,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
 
 def runserver():
     try:
-        print('http server is starting...')
+        print(f'http server is starting at address {URL}:{PORT}')
         server_address = (URL, PORT)
         server = HTTPServer(server_address, MyAwesomeHandler)
         server.serve_forever()
