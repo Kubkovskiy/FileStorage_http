@@ -144,3 +144,4 @@ cython_debug/
 !/Client/files_to_upload/
 
 !/test/files_to_upload/
+!/lib/
