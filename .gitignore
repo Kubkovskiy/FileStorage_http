@@ -145,3 +145,5 @@ cython_debug/
 
 !/test/files_to_upload/
 !/lib/
+/FileStorage/uploaded_files/
+/FileStorage/FileStorage.db

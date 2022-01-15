@@ -77,30 +77,20 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if path_not_valid(path):
             return self.write_response(404, b'{"message": "404 Not Found"}')
         size = int(self.headers['content-length'])
-        content_type = self.headers.get_content_type()
         modification_time = str(datetime.now())
-        # Eсли тип form-data то параметры переданные в params - игнорируются
-        if content_type in ['multipart/form-data', 'application/x-www-form-urlencoded']:
-            params = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
-                                      environ={'REQUEST_METHOD': 'POST'})
-            file = params.getvalue('file')
-            file_id = params.getvalue('id') if 'id' in params else db.return_next_id()
-            filename = params['file'].filename
-            name, execution = os.path.splitext(filename)
-            name = os.path.splitext(filename)[0] if 'name' in params else file_id
-            tag = params.getvalue('tag') if 'tag' in params else None
 
-        else:
-            query = parse_qs(urlparse(self.path).query)
-            if query_not_valid(query):
-                message = b'{"message": "bad request, params could be only (id, name, tag, size,\
-                                                                        mimeType, modificationTime)"}'
-                return self.write_response(404, message)
-            file = self.rfile.read(size)
-            file_id = int(query['id'][0]) if 'id' in query else db.return_next_id()
-            filename = query['name'][0] if 'name' in query else str(file_id)
-            name, execution = os.path.splitext(filename)
-            tag = query['tag'][0] if 'tag' in query else None
+        ctype, pdict = cgi.parse_header(self.headers['Content-Type'])
+        pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
+        params = cgi.parse_multipart(self.rfile, pdict)
+        content_type = params.get('content-type')[0]
+        file = params.get('file')[0]
+        file_id = int(params.get('id')[0]) if 'id' in params else db.return_next_id()
+        filename = self.headers.get_filename()
+        name, execution = os.path.splitext(filename)
+        name = os.path.splitext(filename)[0] if 'name' in params else str(file_id)
+        tag = params.get('tag')[0] if 'tag' in params else None
+
+
 
         # загрузка в ДБ
         data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,

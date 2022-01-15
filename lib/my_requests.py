@@ -3,41 +3,39 @@ import requests
 
 class MyRequests:
     @staticmethod
-    def post(uri: str, data: dict = None, headers: dict = None, cookies: dict = None):
-        return MyRequests._send(uri, data, headers, cookies, "POST")
+    def post(uri: str, data: dict = None, headers: dict = None, file: dict = None):
+        return MyRequests._send(uri, data, headers, file, "POST")
+
+        @staticmethod
+        def get(uri: str, params: dict = None, headers: dict = None):
+            return MyRequests._send(uri, params, headers, "GET")
+
+        @staticmethod
+        def put(uri: str, data: dict = None, headers: dict = None):
+            return MyRequests._send(uri, data, headers, "PUT")
+
+        @staticmethod
+        def delete(uri: str, data: dict = None, headers: dict = None):
+            return MyRequests._send(uri, data, headers, "DELETE")
 
     @staticmethod
-    def get(uri: str, params: dict = None, headers: dict = None, cookies: dict = None):
-        return MyRequests._send(uri, params, headers, cookies, "GET")
-
-    @staticmethod
-    def put(uri: str, data: dict = None, headers: dict = None, cookies: dict = None):
-        return MyRequests._send(uri, data, headers, cookies, "PUT")
-
-    @staticmethod
-    def delete(uri: str, data: dict = None, headers: dict = None, cookies: dict = None):
-        return MyRequests._send(uri, data, headers, cookies, "DELETE")
-
-    @staticmethod
-    def _send(uri: str, data: dict, headers: dict, cookies: dict, method: str):
+    def _send(uri: str, data: dict, headers: dict, file: dict, method: str):
 
         url = f"http://127.0.0.1:9000/api/{uri}"
         if headers is None:
             headers = {}
-        if cookies is None:
-            cookies = {}
 
         if method == "GET":
-            response = requests.get(url, params=data, headers=headers, cookies=cookies)
+            response = requests.get(url, params=data, headers=headers)
 
         elif method == "POST":
-            response = requests.post(url, data=data, headers=headers, cookies=cookies)
+            response = requests.post(url, data=data, headers=headers,files=file)
 
         elif method == "PUT":
-            response = requests.put(url, data=data, headers=headers, cookies=cookies)
+            response = requests.put(url, data=data, headers=headers)
 
         elif method == "DELETE":
-            response = requests.delete(url, data=data, headers=headers, cookies=cookies)
+            response = requests.delete(url, data=data, headers=headers)
 
         else:
             raise Exception(f"Bad http method '{method}' was received")

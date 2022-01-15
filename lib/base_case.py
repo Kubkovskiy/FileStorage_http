@@ -1,6 +1,7 @@
 import json
 import requests
 from requests import Response
+from lib.assertions import Assertions
 
 
 class BaseCase:
@@ -18,15 +19,16 @@ class BaseCase:
         assert name in response_as_dict, f"Response JSON doesn't have key '{name}'"
         return response_as_dict[name]
 
-    def upload_file_from_yandex_disk(self, url: str) -> bytes:
-        base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
-        public_key = url  # Сюда вписываем ссылку на файл
-
+    def download_file_from_cloud(self, url: str):
+        """Download file from yandex disk. return response"""
+        base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key='
         # Получаем загрузочную ссылку
-        final_url = f"{base_url}public_key={url}"
+        final_url = f"{base_url}{url}"
         response = requests.get(final_url)
-        download_url = response.json()['href']
+        Assertions.assert_expected_status_code(response, 200)
+        download_url = self.get_json_value(response, 'href')
 
         # Загружаем файл и возвращаем его
         download_response = requests.get(download_url)
-        return download_response.content
+        Assertions.assert_expected_status_code(download_response, 200)
+        return download_response
