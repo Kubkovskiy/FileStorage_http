@@ -19,8 +19,9 @@ class BaseCase:
         assert name in response_as_dict, f"Response JSON doesn't have key '{name}'"
         return response_as_dict[name]
 
-    def download_file_from_cloud(self, url: str):
-        """Download file from yandex disk. return response"""
+    def download_file_from_cloud(self, url: str) -> tuple:
+
+        """Download file from yandex disk. return (content-type:str, headers:dict, file:bytes) """
         base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key='
         # Получаем загрузочную ссылку
         final_url = f"{base_url}{url}"
@@ -31,4 +32,10 @@ class BaseCase:
         # Загружаем файл и возвращаем его
         download_response = requests.get(download_url)
         Assertions.assert_expected_status_code(download_response, 200)
-        return download_response
+        content_type = download_response.headers.get('Content-Type')
+        headers = {
+            'Content-Disposition': download_response.headers.get('Content-Disposition'),
+            'Content-Length': download_response.headers.get('Content-Length'),
+        }
+
+        return (content_type, headers, download_response.content)

@@ -78,7 +78,6 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             return self.write_response(404, b'{"message": "404 Not Found"}')
         size = int(self.headers['content-length'])
         modification_time = str(datetime.now())
-
         ctype, pdict = cgi.parse_header(self.headers['Content-Type'])
         pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
         params = cgi.parse_multipart(self.rfile, pdict)
@@ -89,9 +88,6 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         name, execution = os.path.splitext(filename)
         name = os.path.splitext(filename)[0] if 'name' in params else str(file_id)
         tag = params.get('tag')[0] if 'tag' in params else None
-
-
-
         # загрузка в ДБ
         data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
                 'modificationTime': modification_time}
