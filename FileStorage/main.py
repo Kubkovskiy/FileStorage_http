@@ -77,16 +77,15 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if path_not_valid(path):
             return self.write_response(404, b'{"message": "404 Not Found"}')
         size = int(self.headers['content-length'])
-        modification_time = str(datetime.now())
+        modification_time = str(datetime.now().strftime('%Y:%m:%d_%H:%M:%S'))
         ctype, pdict = cgi.parse_header(self.headers['Content-Type'])
         pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
         params = cgi.parse_multipart(self.rfile, pdict)
-        content_type = params.get('content-type')[0]
+        content_type = params.get('content-type')[0] if 'content-type' in params else ctype
         file = params.get('file')[0]
         file_id = int(params.get('id')[0]) if 'id' in params else db.return_next_id()
-        filename = self.headers.get_filename()
-        name, execution = os.path.splitext(filename)
-        name = os.path.splitext(filename)[0] if 'name' in params else str(file_id)
+        execution = os.path.splitext(self.headers.get_filename())[-1] if self.headers.get_filename() else ""
+        name = params.get('name')[0] if 'name' in params else str(file_id)
         tag = params.get('tag')[0] if 'tag' in params else None
         # загрузка в ДБ
         data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
@@ -120,7 +119,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
 
 def runserver():
     try:
-        print(f'http server is starting at address {URL}:{PORT}')
+        print(f'http server is starting at address http://{URL}:{PORT}')
         server_address = (URL, PORT)
         server = HTTPServer(server_address, MyAwesomeHandler)
         server.serve_forever()
