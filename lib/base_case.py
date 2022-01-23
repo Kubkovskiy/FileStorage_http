@@ -7,15 +7,19 @@ from requests import Response
 from lib.assertions import Assertions
 import magic
 
+from lib.my_requests import MyRequests
+
 
 class BaseCase:
     FILES_FOR_UPLOAD = 'tests/files_for_upload/'
     URL_TO_ARCHIVE = "https://disk.yandex.ru/d/aJoFOPqLRHGGXw"
+
     @staticmethod
     def get_header(response: Response, header_name):
         assert header_name in response.headers, f"Cannot find header with the name {header_name} \
                                                 in response"
         return response.headers[header_name]
+
     @staticmethod
     def get_json_value(response: Response, name):
         try:
@@ -121,3 +125,30 @@ class BaseCase:
             return os.listdir(folder_path)
         files = BaseCase.download_and_extract_zip_archive_from_cloud(BaseCase.URL_TO_ARCHIVE)
         return files
+
+    @staticmethod
+    def get_file_id_from_server(response: Response) -> list:
+        """Make get method to server and fetch all id from DB"""
+        all_id = []
+        Assertions.assert_expected_status_code(response, 200)
+        try:
+            expected_dict = response.json()
+            # expected_name = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
+            for file in expected_dict:
+                all_id.append(file['id'])
+        except json.JSONDecodeError:
+            assert False, f"Response is no JSON format, response text is {response.text}"
+        return all_id
+
+    @staticmethod
+    def delete_all_files():
+        response = MyRequests.get('get')
+        assert response.status_code in (200, 204), f"Unexpected status code. Expected: 200 or 204,\
+                                                                    Actual: {response.status_code}"
+        if response.status_code == 204:
+            return response
+        all_id = BaseCase.get_file_id_from_server(response)
+        data = {'id': all_id}
+        response = MyRequests.delete('delete', data)
+        Assertions.assert_expected_status_code(response, 200)
+        return response

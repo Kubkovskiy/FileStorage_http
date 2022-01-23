@@ -44,9 +44,26 @@ class Assertions:
             assert name not in expected_dict, f"Response JSON have key {name}"
 
     @staticmethod
-    def base_assertions(response: Response):
+    def base_assertions_for_post_method(response: Response):
         """Check status code = 201,
         response is JSON and has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
         Assertions.assert_expected_status_code(response, 201)
         Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
                                                    'mimeType', 'modificationTime'])
+
+    @staticmethod
+    def base_assertions_for_get_method(response: Response):
+        """Check status code = 200,
+        response is JSON and all files has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
+        Assertions.assert_expected_status_code(response, 200)
+        try:
+            expected_dict = response.json()
+            expected_name = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
+            for file in expected_dict:
+                for name in expected_name:
+                    assert name in file, f"Response JSON doesn't have key {name} in file: {file}"
+        except json.JSONDecodeError:
+            assert False, f"Response is no JSON format, response text is {response.text}"
+
+        # Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
+        #                                            'mimeType', 'modificationTime'])

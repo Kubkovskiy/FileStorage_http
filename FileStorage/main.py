@@ -42,11 +42,11 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             return self.write_response(404, message)
         path = urlparse(self.path).path
         if path_not_valid(path):
-            return self.write_response(404, b'{"message": "404 Not Found"}')
+            return self.write_response(404, b'{"message": " Not Found"}')
         result = db.parse_from_db(query)
         if len(result) == 0:
-            message = b'{"message": "No results =("}'
-            return self.write_response(400, message)
+            message = b'{"message": "No result"}'
+            return self.write_response(204, message)
         # пока подразумеваем загрузку по 1 файлу
         if path == '/api/download':
             if len(query) > 1 or 'id' not in query.keys():
@@ -107,10 +107,10 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if not query or len(query) == 0:
             message = b'{"message": "bad request, params could be only (id, name, tag, size,\
                                                                     mimeType, modificationTime)"}'
-            return self.write_response(404, message)
+            return self.write_response(400, message)
         result = db.delete_from_db(query)
         if not result:
-            return self.write_response(400, b'{"message": "No results =("}')
+            return self.write_response(400, b'{"message": "No result"}')
         amount_del_files = delete_from_dir(result)
         message = {"message": "{0} files deleted".format(amount_del_files)}
         message_json = json.dumps(message)

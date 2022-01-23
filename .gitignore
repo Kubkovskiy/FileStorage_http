@@ -147,3 +147,4 @@ cython_debug/
 !/lib/
 /FileStorage/uploaded_files/
 /FileStorage/FileStorage.db
+/tests/test_for_stady/
