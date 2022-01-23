@@ -1,34 +1,34 @@
-import os
-
 import pytest
-
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
-import pytest
 
 
 class TestPostMethod(BaseCase):
+    def setup_class(cls):
+        print('\nStart TestPostMethod class\n')
 
-    def test_post_all_files_with_empty_data(self, preparing_files_for_upload):
-        files_from_upload_dir = preparing_files_for_upload
-        # files_from_upload_dir = os.listdir(BaseCase.FILES_FOR_UPLOAD)
-        response_count = 0
-        for filename in files_from_upload_dir:
-            file_dict = self.open_file_from_upload_folder(filename)
-            data, headers, payload = self.set_data_to_post_method(file_dict, content_type="auto")
-            response = MyRequests.post("upload", data, headers, payload)
-            print(response.json())
-            Assertions.assert_expected_status_code(response, 201)
-            Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-                                                       'mimeType', 'modificationTime'])
+    def teardown_class(cls):
+        print('\n Delete all posted files from server')
+        print('\n _______ ТИПО УДАЛИЛ ВСЕ С СЕРВЕРА _______')
 
-            # Check str(id) equal name
-            response_name, response_id = response.json()['name'], response.json()['id']
-            assert str(response_id) == response_name, f"'name' should be the same as \
-                                                  'id' = {response_id}, actual name={response_name}"
-            response_count += 1
-        assert len(files_from_upload_dir) == response_count, f'Not all files was testing'
+        print('\n Finish TestPostMethod class')
+
+
+    @pytest.mark.parametrize('filename', BaseCase.get_files())
+    def test_post_all_files_with_empty_data(self, filename):
+        file_dict = self.open_file_from_upload_folder(filename)
+        data, headers, payload = self.set_data_to_post_method(file_dict, content_type="auto")
+        response = MyRequests.post("upload", data, headers, payload)
+        print(response.json())
+        Assertions.assert_expected_status_code(response, 201)
+        Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
+                                                   'mimeType', 'modificationTime'])
+
+        # Check str(id) equal name
+        response_name, response_id = response.json()['name'], response.json()['id']
+        assert str(response_id) == response_name, f"'name' should be the same as \
+                                              'id' = {response_id}, actual name={response_name}"
 
     # def test_post_with_empty_data(self):
     #     file_url = "https://disk.yandex.ru/d/tlg65UJ2FWNxgA"

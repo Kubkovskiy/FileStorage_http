@@ -10,6 +10,7 @@ import magic
 
 class BaseCase:
     FILES_FOR_UPLOAD = 'tests/files_for_upload/'
+    URL_TO_ARCHIVE = "https://disk.yandex.ru/d/aJoFOPqLRHGGXw"
     @staticmethod
     def get_header(response: Response, header_name):
         assert header_name in response.headers, f"Cannot find header with the name {header_name} \
@@ -24,6 +25,7 @@ class BaseCase:
 
         assert name in response_as_dict, f"Response JSON doesn't have key '{name}'"
         return response_as_dict[name]
+
     @staticmethod
     def download_file_from_cloud(url: str):
         """Download file from yandex disk. return (content-type:str, headers:dict, file:bytes) """
@@ -46,7 +48,7 @@ class BaseCase:
             os.chdir('..')
             curdir = os.getcwd().split('\\')
 
-
+    @staticmethod
     def download_and_extract_zip_archive_from_cloud(url: str, filename: str = None) -> list:
         """
         url - address to folder 'files_for_upload' on cloud. filename = test_+time_now.zip(default),
@@ -81,12 +83,18 @@ class BaseCase:
         return names_list
 
     @staticmethod
-    def open_file_from_upload_folder(name: str) -> dict:
+    def check_upload_folder(name: str):
         """check upload folder and open file. return dict {filename: file(bytes)"""
         BaseCase.change_dir_to_root()
         path_to_upload_folder = BaseCase.FILES_FOR_UPLOAD
-        assert os.path.isfile(path_to_upload_folder + name), f'There are not file {name} in upload folder'
-        with open(path_to_upload_folder + name, 'rb') as file:
+        assert os.path.isdir(path_to_upload_folder), f'There are not folder {BaseCase.FILES_FOR_UPLOAD}'
+        assert os.path.isfile(BaseCase.FILES_FOR_UPLOAD + name), f'There are not file {name} in upload folder'
+
+    @staticmethod
+    def open_file_from_upload_folder(name: str) -> dict:
+        """check upload folder and open file. return dict {filename: file(bytes)"""
+        BaseCase.check_upload_folder(name)
+        with open(BaseCase.FILES_FOR_UPLOAD + name, 'rb') as file:
             data = file.read()
             return {"content": data, "name": name}
 
@@ -104,4 +112,12 @@ class BaseCase:
         headers = {"Content-Disposition": f"attachment; filename={file_dict['name']}"}
         payload = {"file": file_dict['content']}
         data = {"id": file_id, "name": name, "tag": tag, "content-type": content_type}
-        return (data, headers, payload)
+        return data, headers, payload
+
+    @staticmethod
+    def get_files():
+        folder_path = BaseCase.FILES_FOR_UPLOAD
+        if os.path.isdir(folder_path) and len(os.listdir(folder_path)) > 0:
+            return os.listdir(folder_path)
+        files = BaseCase.download_and_extract_zip_archive_from_cloud(BaseCase.URL_TO_ARCHIVE)
+        return files
