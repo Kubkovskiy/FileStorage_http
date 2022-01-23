@@ -115,7 +115,7 @@ class BaseCase:
         return data, headers, payload
 
     @staticmethod
-    def get_files():
+    def get_files() -> list:
         folder_path = BaseCase.FILES_FOR_UPLOAD
         if os.path.isdir(folder_path) and len(os.listdir(folder_path)) > 0:
             return os.listdir(folder_path)

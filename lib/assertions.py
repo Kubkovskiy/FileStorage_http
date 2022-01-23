@@ -42,3 +42,11 @@ class Assertions:
             assert False, f"Response is no JSON format, response text is {response.text}"
         for name in names:
             assert name not in expected_dict, f"Response JSON have key {name}"
+
+    @staticmethod
+    def base_assertions(response: Response):
+        """Check status code = 201,
+        response is JSON and has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
+        Assertions.assert_expected_status_code(response, 201)
+        Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
+                                                   'mimeType', 'modificationTime'])

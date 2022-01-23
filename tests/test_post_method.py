@@ -14,98 +14,60 @@ class TestPostMethod(BaseCase):
 
         print('\n Finish TestPostMethod class')
 
-
-    @pytest.mark.parametrize('filename', BaseCase.get_files())
-    def test_post_all_files_with_empty_data(self, filename):
-        file_dict = self.open_file_from_upload_folder(filename)
-        data, headers, payload = self.set_data_to_post_method(file_dict, content_type="auto")
+    @pytest.mark.parametrize('file_for_test', BaseCase.get_files())
+    def test_post_files_with_empty_data(self, file_for_test: str):
+        file_dict = self.open_file_from_upload_folder(file_for_test)
+        data, headers, payload = self.set_data_to_post_method(file_dict)
         response = MyRequests.post("upload", data, headers, payload)
-        print(response.json())
-        Assertions.assert_expected_status_code(response, 201)
-        Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-                                                   'mimeType', 'modificationTime'])
+        # # print(response.json())
+        Assertions.base_assertions(response)
+        # Check id equal name
+        r_name, r_id, r_tag = response.json()['name'], response.json()['id'], response.json()['tag']
+        expected_ctype = 'multipart/form-data'
+        assert str(r_id) == r_name, f"'name' should be the same as 'id' = {r_id}, actual name={r_name}"
+        Assertions.assert_json_value_by_name(response, 'tag', None, f"Response 'tag' should be None, actual {r_tag}")
+        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype, f"Response 'mimeType' should be \
+                                                                    'multipart/form-data', actual {expected_ctype}")
 
-        # Check str(id) equal name
-        response_name, response_id = response.json()['name'], response.json()['id']
-        assert str(response_id) == response_name, f"'name' should be the same as \
-                                              'id' = {response_id}, actual name={response_name}"
+    @pytest.mark.parametrize('ctype', ['auto', 'test_ctype'])
+    def test_content_type(self, ctype: str):
+        file_for_test = 'test4.pdf'
+        file_dict = self.open_file_from_upload_folder(file_for_test)
+        data, headers, payload = self.set_data_to_post_method(file_dict, content_type=ctype)
+        response = MyRequests.post("upload", data, headers, payload)
+        # print(response.json())
+        Assertions.base_assertions(response)
+        # Check id equal name
+        mime_type = response.json()['mimeType']
+        expected_ctype = 'test_ctype' if ctype == 'test_ctype' else 'application/pdf'
+        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype, f"Response 'mimeType' should be \
+                                                                    'multipart/form-data', actual {mime_type}")
 
-    # def test_post_with_empty_data(self):
-    #     file_url = "https://disk.yandex.ru/d/tlg65UJ2FWNxgA"
-    #     response_from_cloud = self.download_file_from_cloud(file_url)
-    #     content_type = response_from_cloud.headers.get('Content-Type')
-    #     file_from_cloud = response_from_cloud.content
-    #     headers = {
-    #         # 'Content-Disposition': response_from_cloud.headers.get('Content-Disposition'),
-    #         # 'Content-Length': response_from_cloud.headers.get('Content-Length'),
-    #     }
-    #     payload = {"file": file_from_cloud}
-    #     data = {"name": 'test.zip', "tag": None, "id": None, "content-type": content_type}
-    #     response = MyRequests.post("upload", data, headers, payload)
-    #     print(response.json())
-    #     Assertions.assert_expected_status_code(response, 201)
-    #     Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-    #                                                'mimeType', 'modificationTime'])
+    @pytest.mark.parametrize('file_id', [999, 1])
+    def test_post_with_id(self, file_id: int):
+        file_for_test = 'test4.pdf'
+        file_dict = self.open_file_from_upload_folder(file_for_test)
+        data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id)
+        response = MyRequests.post("upload", data, headers, payload)
+        # print(response.json())
+        Assertions.base_assertions(response)
+        # Check id equal name
+        r_name, r_id = response.json()['name'], response.json()['id']
+        Assertions.assert_json_value_by_name(response, 'id', file_id,
+                                             f"Response 'id' expected {file_id} , actual {r_id}")
+        assert str(r_id) == r_name, f"'name' should be the same as 'id' = {r_id}, actual name={r_name}"
 
-    # def test_post_with_id(self):
-    #     file_url = "https://disk.yandex.ru/i/2xwFm2zp34nzZA"
-    #     response_from_cloud = self.download_file_from_cloud(file_url)
-    #     content_type = response_from_cloud.headers.get('Content-Type')
-    #     file_from_cloud = response_from_cloud.content
-    #     headers = {
-    #         'Content-Disposition': response_from_cloud.headers.get('Content-Disposition'),
-    #         'Content-Length': response_from_cloud.headers.get('Content-Length'),
-    #             }
-    #     payload = {"file": file_from_cloud}
-    #     file_id = 1
-    #     data = {"name": None, "tag": None, "id": file_id, "content-type": content_type}
-    #     response = MyRequests.post("upload", data, headers, payload)
-    #     Assertions.assert_expected_status_code(response, 201)
-    #     Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-    #                                                'mimeType', 'modificationTime'])
-    #     Assertions.assert_json_value_by_name(response, "id", file_id,
-    #                     f"'id' should be equal = {file_id}, but actual id={response.json()['id']}")
-    #
-    # def test_post_with_name(self):
-    #     file_url = "https://disk.yandex.ru/i/2xwFm2zp34nzZA"
-    #     response_from_cloud = self.download_file_from_cloud(file_url)
-    #     content_type = response_from_cloud.headers.get('Content-Type')
-    #     file_from_cloud = response_from_cloud.content
-    #     headers = {
-    #         'Content-Disposition': response_from_cloud.headers.get('Content-Disposition'),
-    #         'Content-Length': response_from_cloud.headers.get('Content-Length'),
-    #     }
-    #     payload = {"file": file_from_cloud}
-    #     name = 'test_name'
-    #     data = {"name": name, "tag": None, "id": None, "content-type": content_type}
-    #     response = MyRequests.post("upload", data, headers, payload)
-    #     Assertions.assert_expected_status_code(response, 201)
-    #     Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-    #                                                'mimeType', 'modificationTime'])
-    #     Assertions.assert_json_value_by_name(response, "name", name,
-    #                     f"'name' should be equal 'id' = {name}, but actual name={response.json()['name']}")
-    #
-    # def test_post_with_name_and_id(self):
-    #     file_url = "https://disk.yandex.ru/i/2xwFm2zp34nzZA"
-    #     response_from_cloud = self.download_file_from_cloud(file_url)
-    #     content_type = response_from_cloud.headers.get('Content-Type')
-    #     file_from_cloud = response_from_cloud.content
-    #     headers = {
-    #         'Content-Disposition': response_from_cloud.headers.get('Content-Disposition'),
-    #         'Content-Length': response_from_cloud.headers.get('Content-Length'),
-    #     }
-    #     payload = {"file": file_from_cloud}
-    #     name = 'test_name'
-    #     file_id = 15
-    #     data = {"name": name, "tag": None, "id": file_id, "content-type": content_type}
-    #     response = MyRequests.post("upload", data, headers, payload)
-    #     Assertions.assert_expected_status_code(response, 201)
-    #     Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-    #                                                'mimeType', 'modificationTime'])
-    #     Assertions.assert_json_value_by_name(response, "name", name,
-    #                     f"'name' should be equal 'id' = {name}, but actual name= {response.json()['name']}")
-    #     Assertions.assert_json_value_by_name(response, "id", file_id,
-    #                     f"'id' should be equal = {file_id}, but actual id={response.json()['id']}")
-    #
-    #     # Assertions.assert_json_value_by_name(response, "name", str(file_id),
-    #     #                                      f"'name' should be equal 'id' = {file_id}, but 'name'= {response.json()['name']}")
+    @pytest.mark.parametrize('name',  ['test1', 'test2', 'test3', 'test4', '1222111'])
+    def test_post_with_name(self, name: (str, int)):
+        file_for_test = 'test4.pdf'
+        file_dict = self.open_file_from_upload_folder(file_for_test)
+        data, headers, payload = self.set_data_to_post_method(file_dict, name=name, content_type='auto')
+        response = MyRequests.post("upload", data, headers, payload)
+        # print(response.json())
+        Assertions.base_assertions(response)
+        # Check id equal name
+        exp_name = name
+        r_name = response.json()['name']
+        Assertions.assert_json_value_by_name(response, 'name', exp_name,
+                                             f"Response 'name' expected {exp_name} , actual {r_name}")
+
