@@ -46,7 +46,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         result = db.parse_from_db(query)
         if len(result) == 0:
             message = b'{"message": "No result"}'
-            return self.write_response(204, message)
+            return self.write_response(404, message)
         # пока подразумеваем загрузку по 1 файлу
         if path == '/api/download':
             if len(query) > 1 or 'id' not in query.keys():
@@ -83,13 +83,23 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         params = cgi.parse_multipart(self.rfile, pdict)
         content_type = params.get('content-type')[0] if 'content-type' in params else ctype
         file = params.get('file')[0]
-        file_id = int(params.get('id')[0]) if 'id' in params else db.return_next_id()
+        # if id in data - delete file from folder and save again, then set file_id
+        if 'id' in params:
+            file_id = params.get('id')[0]
+            file_path = get_name_from_file_id(file_id)
+            if file_path:
+                os.remove(file_path)
+            file_id = int(file_id)
+        else:
+            file_id = db.return_next_id()
+
         execution = os.path.splitext(self.headers.get_filename())[-1] if self.headers.get_filename() else ""
         name = params.get('name')[0] if 'name' in params else str(file_id)
         tag = params.get('tag')[0] if 'tag' in params else None
         # загрузка в ДБ
         data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
                 'modificationTime': modification_time}
+
         result = json.dumps(db.add_to_db(data))
 
         # upload in dir

@@ -6,77 +6,40 @@ from lib.assertions import Assertions
 from lib.my_requests import MyRequests
 
 
-
-
-
 class TestDeleteMethod(BaseCase):
 
     def setup_class(cls):
         print('\n === Start TestDeleteMethod ===')
         print('\n === Deleting all files from file storage ===')
         response = BaseCase.delete_all_files()
-        Assertions.assert_json_value_by_name(response, 'message', "No result", "Unexpected message")
-        print('\n === Testing ===')
-        print('\n  \n')
-        print('\n Upload files for test \n')
-        print('\n Типо загрузил \n')
-        print('\n',)
-
-
-    def teardown_class(cls):
-        print('\n Delete all files from tests/files_for_upload')
-        response = BaseCase.delete_all_files()
-        Assertions.assert_json_value_by_name(response, 'message', "No result", "Unexpected message")
-        print('\n _______ ТИПО УДАЛИЛ ВСЕ С ТЕСТОВОГО ОКРУЖЕНИЯ _______')
-
-        print('\n Finish TestDeleteMethod class')
-
-
-    # def test_prepare_server(self, delete_all_files):
-    #     response = delete_all_files
-    #     print('from fixture')
-    #     print(response.json())
-
-    # def test_delete_all(self):
-    #     all_id = BaseCase.get_file_id_from_server()
-    #     response = MyRequests.delete('delete', {'id':all_id})
-    #
-    #     print(response.text)
-
-
-    def test_1(self):
-        response = MyRequests.get('get')
         print(response.json())
+        # Assertions.assert_expected_status_code(response, 200)
+
+        # Assertions.assert_json_value_by_name(response, 'message', "No result", "Unexpected message")
+        print('\n === Testing ===')
+
+    @pytest.mark.parametrize('expected_file_id', [1, 2, 3, 4, 5])
+    def test_delete_by_id(self, expected_file_id):
+        file_id = 1
+        files_for_test = BaseCase.get_files()
+        for file in files_for_test:
+            response = self.upload_file_for_delete_test(file, file_id=file_id)
+            file_id += 1
+        response2 = MyRequests.get('get')
+        Assertions.base_assertions_for_get_method(response2)
+        content_list = response2.json()
+        for content in content_list:
+            content_id = content['id']
+            if content_id == expected_file_id
+                break
+            assert expected_file_id in content, f"Unexpected id - {content['id']}, expected {expected_file_id}"
+        response3 = MyRequests.delete('delete', file_id=expected_file_id)
+
+
+
+
+        print(response.text)
         assert response.status_code == 404, f'что то не то'
-
-
-
-        # # Check id equal name
-        # r_name, r_id, r_tag = response.json()['name'], response.json()['id'], response.json()['tag']
-        # expected_ctype = 'multipart/form-data'
-        # assert str(r_id) == r_name, f"'name' should be the same as 'id' = {r_id}, actual name={r_name}"
-        # Assertions.assert_json_value_by_name(response, 'tag', None, f"Response 'tag' should be None, actual {r_tag}")
-        # Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype, f"Response 'mimeType' should be \
-        #                                                             'multipart/form-data', actual {expected_ctype}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # @pytest.mark.parametrize('ctype', ['auto', 'test_ctype'])
     # def test_content_type(self, ctype: str):

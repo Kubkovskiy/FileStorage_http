@@ -120,6 +120,7 @@ class BaseCase:
 
     @staticmethod
     def get_files() -> list:
+        BaseCase.change_dir_to_root()
         folder_path = BaseCase.FILES_FOR_UPLOAD
         if os.path.isdir(folder_path) and len(os.listdir(folder_path)) > 0:
             return os.listdir(folder_path)
@@ -143,12 +144,22 @@ class BaseCase:
     @staticmethod
     def delete_all_files():
         response = MyRequests.get('get')
-        assert response.status_code in (200, 204), f"Unexpected status code. Expected: 200 or 204,\
+        assert response.status_code in (200, 404), f"Unexpected status code. Expected: 200 or 204,\
                                                                     Actual: {response.status_code}"
-        if response.status_code == 204:
+        if response.status_code == 404:
             return response
         all_id = BaseCase.get_file_id_from_server(response)
         data = {'id': all_id}
         response = MyRequests.delete('delete', data)
         Assertions.assert_expected_status_code(response, 200)
+        return response
+
+    def upload_file_for_delete_test(self, filename, file_id=None, name=None, tag=None, mimeType=None):
+        file_dict = BaseCase.open_file_from_upload_folder(filename)
+        data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id, name=name, tag=tag,
+                                                              content_type=mimeType)
+        response = MyRequests.post("upload", data, headers, payload)
+
+        # # print(response.json())
+        Assertions.base_assertions_for_post_method(response)
         return response
