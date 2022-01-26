@@ -10,7 +10,8 @@ class TestPostMethod(BaseCase):
 
     def teardown_class(cls):
         print('\n Delete all posted files from server')
-        print('\n _______ ТИПО УДАЛИЛ ВСЕ С СЕРВЕРА _______')
+        response = BaseCase.delete_all_files()
+
 
         print('\n Finish TestPostMethod class')
 
