@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import shutil
 import zipfile
 import requests
 from requests import Response
@@ -142,7 +143,7 @@ class BaseCase:
         return all_id
 
     @staticmethod
-    def delete_all_files():
+    def delete_all_files_from_server():
         response = MyRequests.get('get')
         assert response.status_code in (200, 404), f"Unexpected status code. Expected: 200 or 204,\
                                                                     Actual: {response.status_code}"
@@ -154,12 +155,16 @@ class BaseCase:
         Assertions.assert_expected_status_code(response, 200)
         return response
 
-    def upload_file_for_delete_test(self, filename, file_id=None, name=None, tag=None, mimeType=None):
-        file_dict = BaseCase.open_file_from_upload_folder(filename)
+    def upload_file_for_delete_test(self, file, file_id=None, name=None, tag=None, mimetype=None):
+        file_dict = BaseCase.open_file_from_upload_folder(file)
         data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id, name=name, tag=tag,
-                                                              content_type=mimeType)
+                                                              content_type=mimetype)
         response = MyRequests.post("upload", data, headers, payload)
-
-        # # print(response.json())
         Assertions.base_assertions_for_post_method(response)
         return response
+
+    @staticmethod
+    def delete_upload_files():
+        BaseCase.change_dir_to_root()
+        if os.path.isdir(BaseCase.FILES_FOR_UPLOAD):
+            shutil.rmtree(BaseCase.FILES_FOR_UPLOAD)
