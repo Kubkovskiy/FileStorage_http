@@ -57,6 +57,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                 return self.write_response(404, b'{"message": "404 Not Found"}')
             filename = get_name_from_file_id(result['id'])
             base_name = os.path.basename(filename)
+            name, execution = os.path.splitext(base_name)
             try:
                 with open(filename, 'rb') as f:
                     body = f.read()
@@ -65,7 +66,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
                 pass
             self.send_response(200, "OK")
             self.send_header("Content-Type", result['mimeType'])
-            self.send_header("Content-Disposition", 'filename={0}'.format(base_name))
+            self.send_header("Content-Disposition", 'filename={0}'.format(result['name']+execution))
             self.end_headers()
             return self.wfile.write(file)
 

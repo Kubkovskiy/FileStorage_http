@@ -20,7 +20,7 @@ class TestDeleteMethod(BaseCase):
     def test_delete_by_id(self, expected_file_id):
         # Prepare file for test then upload it with expected id
         file_for_test = self.get_files()[0]
-        response = self.upload_file_for_delete_test(file=file_for_test, file_id=expected_file_id)
+        response = self.upload_file_for_test_to_file_storage(file=file_for_test, file_id=expected_file_id)
         file_id_from_response = response.json()['id']
         Assertions.assert_json_value_by_name(response, 'id', expected_file_id,
                                              f" Unexpected id: {file_id_from_response}, expected:{expected_file_id}")
@@ -44,7 +44,7 @@ class TestDeleteMethod(BaseCase):
     def test_delete_by_name(self, expected_name):
         # Prepare file for test then upload it with expected id
         file_for_test = self.get_files()[0]
-        response = self.upload_file_for_delete_test(file=file_for_test, name=expected_name)
+        response = self.upload_file_for_test_to_file_storage(file=file_for_test, name=expected_name)
         name_from_response = response.json()['name']
         Assertions.assert_json_value_by_name(response, 'name', expected_name,
                                              f" Unexpected name: actual {name_from_response}, expected:{expected_name}")
@@ -68,7 +68,7 @@ class TestDeleteMethod(BaseCase):
     def test_delete_by_tag(self, expected_tag):
         # Prepare file for test then upload it with expected id
         file_for_test = self.get_files()[0]
-        response = self.upload_file_for_delete_test(file=file_for_test, tag=expected_tag)
+        response = self.upload_file_for_test_to_file_storage(file=file_for_test, tag=expected_tag)
         tag_from_response = response.json()['tag']
         Assertions.assert_json_value_by_name(response, 'tag', expected_tag,
                                              f" Unexpected tag: actual {tag_from_response}, expected:{expected_tag}")
@@ -92,7 +92,7 @@ class TestDeleteMethod(BaseCase):
     def test_delete_by_mimetype(self,expected_mimetype):
         # Prepare file for test then upload it with expected mimeType
         file_for_test = self.get_files()[0]
-        response = self.upload_file_for_delete_test(file=file_for_test, mimetype=expected_mimetype)
+        response = self.upload_file_for_test_to_file_storage(file=file_for_test, mimetype=expected_mimetype)
         mimetype_from_response = response.json()['mimeType']
         Assertions.assert_json_value_by_name(response, 'mimeType', expected_mimetype,
                                              f" Unexpected tag: actual {mimetype_from_response}, expected:{expected_mimetype}")
@@ -116,7 +116,7 @@ class TestDeleteMethod(BaseCase):
     def test_delete_by_modification_time(self):
         # Prepare file for test then upload it with expected mimeType
         file_for_test = self.get_files()[0]
-        response = self.upload_file_for_delete_test(file=file_for_test)
+        response = self.upload_file_for_test_to_file_storage(file=file_for_test)
         print(response.json())
         modification_time_from_response = response.json()['modificationTime']
 

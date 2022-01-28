@@ -44,7 +44,7 @@ class Assertions:
             assert name not in expected_dict, f"Response JSON have key {name}"
 
     @staticmethod
-    def base_assertions_for_post_method(response: Response):
+    def base_assertions_for_positive_post_method(response: Response):
         """Check status code = 201,
         response is JSON and has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
         Assertions.assert_expected_status_code(response, 201)
@@ -52,7 +52,7 @@ class Assertions:
                                                    'mimeType', 'modificationTime'])
 
     @staticmethod
-    def base_assertions_for_get_method(response: Response):
+    def base_assertions_for_positive_get_method(response: Response):
         """Check status code = 200,
         response is JSON and all files has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
         Assertions.assert_expected_status_code(response, 200)

@@ -24,10 +24,10 @@ class TestGetMethod(BaseCase):
         amount_of_files = len(files_for_test)
         # upload files to FileStorage
         for file in files_for_test:
-            self.upload_file_for_delete_test(file=file)
+            self.upload_file_for_test_to_file_storage(file=file)
         # get files without any params
         response = MyRequests.get('get')
-        Assertions.base_assertions_for_get_method(response)
+        Assertions.base_assertions_for_positive_get_method(response)
         files_from_response = response.json()
         amount_of_files_from_response = len(files_from_response)
         assert amount_of_files == amount_of_files_from_response, \
@@ -44,7 +44,7 @@ class TestGetMethod(BaseCase):
             file_id = list_id[i]
             data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id)
             response_post = MyRequests.post("upload", data, headers, payload)
-            Assertions.base_assertions_for_post_method(response_post)
+            Assertions.base_assertions_for_positive_post_method(response_post)
         # test get
         expected_id = []
         data = {"id": expected_id}
@@ -54,7 +54,7 @@ class TestGetMethod(BaseCase):
             count += 1
             response = MyRequests.get('get', params=data)
             response_list = response.json()
-            Assertions.base_assertions_for_get_method(response)
+            Assertions.base_assertions_for_positive_get_method(response)
             num_of_files = len(response_list)
             assert num_of_files == count, \
                 f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"
@@ -74,7 +74,7 @@ class TestGetMethod(BaseCase):
             name = list_name[i]
             data, headers, payload = self.set_data_to_post_method(file_dict, name=name)
             response_post = MyRequests.post("upload", data, headers, payload)
-            Assertions.base_assertions_for_post_method(response_post)
+            Assertions.base_assertions_for_positive_post_method(response_post)
         # test get
         expected_name = []
         data = {"name": expected_name}
@@ -84,7 +84,7 @@ class TestGetMethod(BaseCase):
             count += 1
             response = MyRequests.get('get', params=data)
             response_list = response.json()
-            Assertions.base_assertions_for_get_method(response)
+            Assertions.base_assertions_for_positive_get_method(response)
             num_of_files = len(response_list)
             assert num_of_files == count, \
                 f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"
@@ -104,7 +104,7 @@ class TestGetMethod(BaseCase):
             tag = list_tag[i]
             data, headers, payload = self.set_data_to_post_method(file_dict, tag=tag)
             response_post = MyRequests.post("upload", data, headers, payload)
-            Assertions.base_assertions_for_post_method(response_post)
+            Assertions.base_assertions_for_positive_post_method(response_post)
         # test get
         expected_tag = []
         data = {"tag": expected_tag}
@@ -114,7 +114,7 @@ class TestGetMethod(BaseCase):
             count += 1
             response = MyRequests.get('get', params=data)
             response_list = response.json()
-            Assertions.base_assertions_for_get_method(response)
+            Assertions.base_assertions_for_positive_get_method(response)
             num_of_files = len(response_list)
             assert num_of_files == count, \
                 f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"
@@ -134,7 +134,7 @@ class TestGetMethod(BaseCase):
             mimetype = list_mimetype[i]
             data, headers, payload = self.set_data_to_post_method(file_dict, content_type=mimetype)
             response_post = MyRequests.post("upload", data, headers, payload)
-            Assertions.base_assertions_for_post_method(response_post)
+            Assertions.base_assertions_for_positive_post_method(response_post)
         # test get
         expected_mimetype = []
         data = {"mimeType": expected_mimetype}
@@ -144,7 +144,7 @@ class TestGetMethod(BaseCase):
             count += 1
             response = MyRequests.get('get', params=data)
             response_list = response.json()
-            Assertions.base_assertions_for_get_method(response)
+            Assertions.base_assertions_for_positive_get_method(response)
             num_of_files = len(response_list)
             assert num_of_files == count, \
                 f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"

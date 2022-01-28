@@ -155,12 +155,12 @@ class BaseCase:
         Assertions.assert_expected_status_code(response, 200)
         return response
 
-    def upload_file_for_delete_test(self, file, file_id=None, name=None, tag=None, mimetype=None):
+    def upload_file_for_test_to_file_storage(self, file, file_id=None, name=None, tag=None, mimetype=None):
         file_dict = BaseCase.open_file_from_upload_folder(file)
         data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id, name=name, tag=tag,
                                                               content_type=mimetype)
         response = MyRequests.post("upload", data, headers, payload)
-        Assertions.base_assertions_for_post_method(response)
+        Assertions.base_assertions_for_positive_post_method(response)
         return response
 
     @staticmethod
