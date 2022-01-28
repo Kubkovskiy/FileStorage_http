@@ -93,3 +93,63 @@ class TestGetMethod(BaseCase):
                 received_name.append(meta['name'])
             assert expected_name == received_name, \
                 f"Unexpected name! expected - {expected_name}, actual - {received_name}"
+
+    def test_get_with_tag(self):
+        # upload file with file_id
+        files_for_test = self.get_files()
+        list_tag = ['test1', 'test2', 'test3', 'test4', 'test5']
+        for i in range(len(files_for_test)):
+            file = files_for_test[i]
+            file_dict = self.open_file_from_upload_folder(file)
+            tag = list_tag[i]
+            data, headers, payload = self.set_data_to_post_method(file_dict, tag=tag)
+            response_post = MyRequests.post("upload", data, headers, payload)
+            Assertions.base_assertions_for_post_method(response_post)
+        # test get
+        expected_tag = []
+        data = {"tag": expected_tag}
+        count = 0
+        for tag in list_tag:
+            expected_tag.append(tag)
+            count += 1
+            response = MyRequests.get('get', params=data)
+            response_list = response.json()
+            Assertions.base_assertions_for_get_method(response)
+            num_of_files = len(response_list)
+            assert num_of_files == count, \
+                f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"
+            received_tag = []
+            for meta in response_list:
+                received_tag.append(meta['tag'])
+            assert expected_tag == received_tag, \
+                f"Unexpected tag! expected - {expected_tag}, actual - {received_tag}"
+
+    def test_get_with_mimetype(self):
+        # upload file with file_id
+        files_for_test = self.get_files()
+        list_mimetype = ['test1', 'test2', 'test3', 'test4', 'test5']
+        for i in range(len(files_for_test)):
+            file = files_for_test[i]
+            file_dict = self.open_file_from_upload_folder(file)
+            mimetype = list_mimetype[i]
+            data, headers, payload = self.set_data_to_post_method(file_dict, content_type=mimetype)
+            response_post = MyRequests.post("upload", data, headers, payload)
+            Assertions.base_assertions_for_post_method(response_post)
+        # test get
+        expected_mimetype = []
+        data = {"mimeType": expected_mimetype}
+        count = 0
+        for mimetype in list_mimetype:
+            expected_mimetype.append(mimetype)
+            count += 1
+            response = MyRequests.get('get', params=data)
+            response_list = response.json()
+            Assertions.base_assertions_for_get_method(response)
+            num_of_files = len(response_list)
+            assert num_of_files == count, \
+                f"Number of files received ({num_of_files}) is not equal to the expected number ({count})"
+            received_mimetype = []
+            for meta in response_list:
+                received_mimetype.append(meta['mimeType'])
+            assert expected_mimetype == received_mimetype, \
+                f"Unexpected mimetype! expected - {expected_mimetype}, actual - {received_mimetype}"
