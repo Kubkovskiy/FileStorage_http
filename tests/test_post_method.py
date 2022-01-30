@@ -16,9 +16,11 @@ class TestPostMethod(BaseCase):
         cls.delete_upload_files()
         print('\n Finish TestPostMethod')
 
-    @pytest.mark.parametrize('file_for_test', BaseCase.get_files())
+    @pytest.mark.parametrize('file_for_test', ['test1.docx', 'test2.xlsx', 'test3.txt',
+                                               'test4.pdf', 'test5.jpg'])
     def test_post_files_with_empty_data(self, file_for_test: str):
         file_dict = self.open_file_from_upload_folder(file_for_test)
+        # files = BaseCase.get_files()
         data, headers, payload = self.set_data_to_post_method(file_dict)
         response = MyRequests.post("upload", data, headers, payload)
         # # print(response.json())
@@ -27,11 +29,12 @@ class TestPostMethod(BaseCase):
         r_name, r_id, r_tag = response.json()['name'], response.json()['id'], response.json()['tag']
         expected_ctype = 'multipart/form-data'
         assert str(r_id) == r_name, f"'name' should be the same as 'id' = {r_id}, actual name={r_name}"
-        Assertions.assert_json_value_by_name(response, 'tag', None, f"Response 'tag' should be None, actual {r_tag}")
-        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype, f"Response 'mimeType' should be \
-                                                                    'multipart/form-data', actual {expected_ctype}")
+        Assertions.assert_json_value_by_name(response, 'tag', None,
+                                             f"Response 'tag' should be None, actual {r_tag}")
+        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype,
+                            f"Response 'mimeType' should be 'multipart/form-data', actual {expected_ctype}")
 
-    @pytest.mark.parametrize('ctype', ['auto', 'test_ctype'])
+    @pytest.mark.parametrize('ctype', ['auto', 'test_content_type'])
     def test_content_type(self, ctype: str):
         file_for_test = 'test4.pdf'
         file_dict = self.open_file_from_upload_folder(file_for_test)
@@ -103,7 +106,7 @@ class TestPostMethod(BaseCase):
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         r_dict = response.json()
-        r_file_id, r_tag, r_name = r_dict['id'],r_dict['name'], r_dict['tag']
+        r_file_id, r_tag, r_name = r_dict['id'], r_dict['name'], r_dict['tag']
         Assertions.assert_json_value_by_name(response, 'id', file_id,
                                              f"Response 'id' expected {file_id} , actual {r_file_id}")
         Assertions.assert_json_value_by_name(response, 'name', str(name),

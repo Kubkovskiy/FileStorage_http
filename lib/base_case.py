@@ -97,7 +97,7 @@ class BaseCase:
 
     @staticmethod
     def open_file_from_upload_folder(name: str) -> dict:
-        """check upload folder and open file. return dict {filename: file(bytes)"""
+        """check upload folder and open file by name. return dict {filename: file(bytes)"""
         BaseCase.check_upload_folder(name)
         with open(BaseCase.FILES_FOR_UPLOAD + name, 'rb') as file:
             data = file.read()
@@ -106,9 +106,10 @@ class BaseCase:
     @staticmethod
     def set_data_to_post_method(file_dict: dict, file_id: int = None, name: str = None,
                                 tag: str = None, content_type: str = None):
-        """ Filling data to post method (files, headers, content-disposition)
-        if content-type == auto : return c.type from 'python-magic', """
-        # For auto MIME types
+        """ prepare data to post method (files, headers, content-disposition)
+        if content-type == auto : return c.type from 'python-magic',
+        file_dict - should contain {'content','name'} """
+        # For auto mimeTypes
         if content_type == 'auto':
             ctype = magic.Magic(mime=True)
             content_type = ctype.from_file(BaseCase.FILES_FOR_UPLOAD + file_dict["name"])
@@ -130,7 +131,7 @@ class BaseCase:
 
     @staticmethod
     def get_file_id_from_server(response: Response) -> list:
-        """Make get method to server and fetch all id from DB"""
+        """fetch all id from DB"""
         all_id = []
         Assertions.assert_expected_status_code(response, 200)
         try:
