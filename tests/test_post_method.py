@@ -44,9 +44,10 @@ class TestPostMethod(BaseCase):
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         mime_type = response.json()['mimeType']
-        expected_ctype = 'test_ctype' if ctype == 'test_ctype' else 'application/pdf'
-        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype, f"Response 'mimeType' should be \
-                                                                    'multipart/form-data', actual {mime_type}")
+        expected_ctype = 'test_content_type' if ctype == 'test_content_type' else 'application/pdf'
+        Assertions.assert_json_value_by_name(response, 'mimeType', expected_ctype,
+                                             f"Response 'mimeType' should be \
+                                            'multipart/form-data', actual {mime_type}")
 
     @pytest.mark.parametrize('file_id', [999, 1])
     def test_post_with_id(self, file_id: int):
