@@ -24,7 +24,7 @@ class TestGetMethod(BaseCase):
         amount_of_files = len(files_for_test)
         # upload files to FileStorage
         for file in files_for_test:
-            self.upload_file_for_test_to_file_storage(file=file)
+            self.upload_file_for_test_to_file_storage(filename=file)
         # get files without any params
         response = MyRequests.get('get')
         Assertions.base_assertions_for_positive_get_method(response)

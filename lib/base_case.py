@@ -88,17 +88,11 @@ class BaseCase:
         return names_list
 
     @staticmethod
-    def check_upload_folder(name: str):
-        """check upload folder and open file. return dict {filename: file(bytes)"""
-        BaseCase.change_dir_to_root()
-        path_to_upload_folder = BaseCase.FILES_FOR_UPLOAD
-        assert os.path.isdir(path_to_upload_folder), f'There are not folder {BaseCase.FILES_FOR_UPLOAD}'
-        assert os.path.isfile(BaseCase.FILES_FOR_UPLOAD + name), f'There are not file {name} in upload folder'
-
-    @staticmethod
     def open_file_from_upload_folder(name: str) -> dict:
         """check upload folder and open file by name. return dict {filename: file(bytes)"""
-        BaseCase.check_upload_folder(name)
+        BaseCase.change_dir_to_root()
+        assert os.path.isdir(BaseCase.FILES_FOR_UPLOAD), f'There are not folder {BaseCase.FILES_FOR_UPLOAD}'
+        assert os.path.isfile(BaseCase.FILES_FOR_UPLOAD + name), f'There are not file {name} in upload folder'
         with open(BaseCase.FILES_FOR_UPLOAD + name, 'rb') as file:
             data = file.read()
             return {"content": data, "name": name}
@@ -122,6 +116,8 @@ class BaseCase:
 
     @staticmethod
     def get_files() -> list:
+        """Checks uploadr_folder if there are no files, it will download and extract,
+         if there are files, it will return a list of files"""
         BaseCase.change_dir_to_root()
         folder_path = BaseCase.FILES_FOR_UPLOAD
         if os.path.isdir(folder_path) and len(os.listdir(folder_path)) > 0:
@@ -131,7 +127,7 @@ class BaseCase:
 
     @staticmethod
     def get_file_id_from_server(response: Response) -> list:
-        """fetch all id from DB"""
+        """fetch all id from server DB"""
         all_id = []
         Assertions.assert_expected_status_code(response, 200)
         try:
@@ -156,8 +152,9 @@ class BaseCase:
         Assertions.assert_expected_status_code(response, 200)
         return response
 
-    def upload_file_for_test_to_file_storage(self, file, file_id=None, name=None, tag=None, mimetype=None):
-        file_dict = BaseCase.open_file_from_upload_folder(file)
+    def upload_file_for_test_to_file_storage(self, filename, file_id=None, name=None, tag=None, mimetype=None):
+        """Prepares files on the server"""
+        file_dict = BaseCase.open_file_from_upload_folder(filename)
         data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id, name=name, tag=tag,
                                                               content_type=mimetype)
         response = MyRequests.post("upload", data, headers, payload)
@@ -166,6 +163,7 @@ class BaseCase:
 
     @staticmethod
     def delete_upload_files():
+        """remove dir tests/files_for_upload"""
         BaseCase.change_dir_to_root()
         if os.path.isdir(BaseCase.FILES_FOR_UPLOAD):
             shutil.rmtree(BaseCase.FILES_FOR_UPLOAD)

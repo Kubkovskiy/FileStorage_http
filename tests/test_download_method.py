@@ -25,7 +25,8 @@ class TestGetMethod(BaseCase):
         filename = "test_for_download"
         file = self.get_files()[0]
         upload_file_size = os.path.getsize(BaseCase.FILES_FOR_UPLOAD + file)
-        response_post = self.upload_file_for_test_to_file_storage(file, file_id=file_id, name=filename, mimetype='auto')
+        response_post = self.upload_file_for_test_to_file_storage(file, file_id=file_id, name=filename,
+                                                                  mimetype='auto')
         file_weight = response_post.json()['size']
         # download files by id
         response = MyRequests.get('download', params={'id': file_id})
