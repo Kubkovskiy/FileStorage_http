@@ -139,3 +139,12 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+
+!/FileStorage/uploaded_files/
+!/Client/files_to_upload/
+
+!/test/files_to_upload/
+!/lib/
+/FileStorage/uploaded_files/
+/FileStorage/FileStorage.db
+/tests/test_for_stady/
