@@ -14,6 +14,8 @@ from lib.my_requests import MyRequests
 class BaseCase:
     FILES_FOR_UPLOAD = 'tests/files_for_upload/'
     URL_TO_ARCHIVE = "https://disk.yandex.ru/d/aJoFOPqLRHGGXw"
+    BASE_KEYS = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
+    FILES_LIST = ['test1.docx', 'test2.xlsx', 'test3.txt', 'test4.pdf', 'test5.jpg']
 
     @staticmethod
     def get_header(response: Response, header_name):
@@ -64,11 +66,11 @@ class BaseCase:
         """
         content = BaseCase.download_file_from_cloud(url).content
         modification_time = str(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-        # Check filename and path if None use defaut
+        # Check filename and path if None use default
         base_name = filename if filename else f'test_{modification_time}.zip'
         BaseCase.change_dir_to_root()
         path_to_upload_folder = BaseCase.FILES_FOR_UPLOAD
-        full_name = path_to_upload_folder + base_name
+        full_name = f"{path_to_upload_folder}{base_name}"
         # check is there 'tests/files_for_upload/ folder? if not should create
         if not os.path.isdir(path_to_upload_folder):
             os.mkdir(path_to_upload_folder)
@@ -76,7 +78,7 @@ class BaseCase:
         # check is file zip archive and extract it
         with open(full_name, 'wb') as f:
             f.write(content)
-        assert zipfile.is_zipfile(full_name), f"Content from cloud isn't zip archive"
+        assert zipfile.is_zipfile(full_name), "Content from cloud isn't zip archive"
         with zipfile.ZipFile(full_name, 'r') as z:
             z.extractall('tests/')
         # remove archive
@@ -84,7 +86,7 @@ class BaseCase:
         # return list with names of file
         names_list = os.listdir(path_to_upload_folder)
         # check is folder not empty
-        assert len(names_list) > 0, f"Files_for_upload is empty"
+        assert len(names_list) > 0, "Files_for_upload is empty"
         return names_list
 
     @staticmethod
@@ -93,7 +95,7 @@ class BaseCase:
         BaseCase.change_dir_to_root()
         assert os.path.isdir(BaseCase.FILES_FOR_UPLOAD), f'There are not folder {BaseCase.FILES_FOR_UPLOAD}'
         assert os.path.isfile(BaseCase.FILES_FOR_UPLOAD + name), f'There are not file {name} in upload folder'
-        with open(BaseCase.FILES_FOR_UPLOAD + name, 'rb') as file:
+        with open(f"{BaseCase.FILES_FOR_UPLOAD}{name}", 'rb') as file:
             data = file.read()
             return {"content": data, "name": name}
 
@@ -106,7 +108,7 @@ class BaseCase:
         # For auto mimeTypes
         if content_type == 'auto':
             ctype = magic.Magic(mime=True)
-            content_type = ctype.from_file(BaseCase.FILES_FOR_UPLOAD + file_dict["name"])
+            content_type = ctype.from_file(f"{BaseCase.FILES_FOR_UPLOAD}{file_dict['name']}")
         elif content_type:
             content_type = content_type
         headers = {"Content-Disposition": f"attachment; filename={file_dict['name']}"}
@@ -132,7 +134,6 @@ class BaseCase:
         Assertions.assert_expected_status_code(response, 200)
         try:
             expected_dict = response.json()
-            # expected_name = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
             for file in expected_dict:
                 all_id.append(file['id'])
         except json.JSONDecodeError:

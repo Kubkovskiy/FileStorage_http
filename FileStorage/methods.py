@@ -5,9 +5,9 @@ import os
 def create_dir(path="uploaded_files") -> str:
     """check is dir created."""
     if path in os.listdir():
-        return path + '/'
+        return f"{path}/"
     os.mkdir(path)
-    return path + '/'
+    return f"{path}/"
 
 def get_name_from_file_id(file_id):
     for file in os.scandir(UPLOADED_FILES_PATH):
