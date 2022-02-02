@@ -6,18 +6,6 @@ from lib.my_requests import MyRequests
 
 class TestGetMethod(BaseCase):
 
-    def setup_class(cls):
-        print('\n Start TestGetMethod \n')
-        # delete files from FileStorage
-        response = cls.delete_all_files_from_server()
-
-    def teardown_class(cls):
-        # delete files from FileStorage
-        cls.delete_all_files_from_server()
-        # delete tests/files_for_upload/
-        cls.delete_upload_files()
-        print('\n Finish TestGetMethod')
-
     def test_get_without_params(self):
         # get files from cloud
         files_for_test = self.get_files()

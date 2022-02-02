@@ -5,19 +5,6 @@ from lib.my_requests import MyRequests
 
 
 class TestGetMethod(BaseCase):
-    @classmethod
-    def setup_class(cls):
-        print('\n Start TestDownloadMethod \n')
-        # delete files from FileStorage
-        cls.delete_all_files_from_server()
-
-    @classmethod
-    def teardown_class(cls):
-        # delete files from FileStorage
-        cls.delete_all_files_from_server()
-        # delete tests/files_for_upload/
-        cls.delete_upload_files()
-        print('\n Finish TestDownloadMethod')
 
     def test_download_by_id(self):
         # upload files to FileStorage

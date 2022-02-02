@@ -5,16 +5,6 @@ from lib.my_requests import MyRequests
 
 
 class TestPostMethod(BaseCase):
-    def setup_class(cls):
-        print('\nStart TestPostMethod \n')
-        cls.get_files()
-
-    def teardown_class(cls):
-        # delete files from FileStorage
-        cls.delete_all_files_from_server()
-        # delete tests/files_for_upload/
-        cls.delete_upload_files()
-        print('\n Finish TestPostMethod')
 
     @pytest.mark.parametrize('file_for_test', BaseCase.FILES_LIST)
     def test_post_files_with_empty_data(self, file_for_test: str):
