@@ -4,7 +4,8 @@ import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from FileStorage.DBmethods import DBconnect
-from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir, UPLOADED_FILES_PATH
+from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir,\
+    UPLOADED_FILES_PATH
 from urllib.parse import urlparse, parse_qs
 import cgi
 
@@ -47,7 +48,6 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if len(result) == 0:
             message = b'{"message": "No result"}'
             return self.write_response(404, message)
-        # пока подразумеваем загрузку по 1 файлу
         if path == '/api/download':
             if len(query) > 1 or 'id' not in query.keys():
                 message = b'{"message": "bad request, params could be only one id"}'
@@ -58,15 +58,13 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
             filename = get_name_from_file_id(result['id'])
             base_name = os.path.basename(filename)
             name, execution = os.path.splitext(base_name)
-            try:
-                with open(filename, 'rb') as f:
-                    body = f.read()
+
+            with open(filename, 'rb') as f:
+                body = f.read()
                 file = bytes(body)
-            except:
-                pass
             self.send_response(200, "OK")
             self.send_header("Content-Type", result['mimeType'])
-            self.send_header("Content-Disposition", 'filename={0}'.format(result['name']+execution))
+            self.send_header("Content-Disposition", f"filename={result['name']}{execution}")
             self.end_headers()
             return self.wfile.write(file)
 
@@ -123,7 +121,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         if not result:
             return self.write_response(400, b'{"message": "No result"}')
         amount_del_files = delete_from_dir(result)
-        message = {"message": "{0} files deleted".format(amount_del_files)}
+        message = {"message": f"{amount_del_files} files deleted"}
         message_json = json.dumps(message)
         return self.write_response(200, message_json)
 

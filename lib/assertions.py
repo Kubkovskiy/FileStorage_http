@@ -1,6 +1,8 @@
 from requests import Response
 import json
 
+BASE_KEYS = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
+
 
 class Assertions:
     @staticmethod
@@ -48,8 +50,7 @@ class Assertions:
         """Check status code = 201,
         response is JSON and has ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']"""
         Assertions.assert_expected_status_code(response, 201)
-        Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-                                                   'mimeType', 'modificationTime'])
+        Assertions.assert_json_has_keys(response, BASE_KEYS)
 
     @staticmethod
     def base_assertions_for_positive_get_method(response: Response):
@@ -58,12 +59,9 @@ class Assertions:
         Assertions.assert_expected_status_code(response, 200)
         try:
             expected_dict = response.json()
-            expected_name = ['id', 'name', 'tag', 'size', 'mimeType', 'modificationTime']
+            expected_name = BASE_KEYS
             for file in expected_dict:
                 for name in expected_name:
                     assert name in file, f"Response JSON doesn't have key {name} in file: {file}"
         except json.JSONDecodeError:
             assert False, f"Response is no JSON format, response text is {response.text}"
-
-        # Assertions.assert_json_has_keys(response, ['id', 'name', 'tag', 'size',
-        #                                            'mimeType', 'modificationTime'])

@@ -6,16 +6,6 @@ from lib.my_requests import MyRequests
 
 class TestDeleteMethod(BaseCase):
 
-
-    def setup_class(cls):
-        print('\n === Start TestDeleteMethod ===')
-        response = BaseCase.delete_all_files_from_server()
-        cls.get_files()
-    def teardown_class(cls):
-        # delete tests/files_for_upload/
-        cls.delete_upload_files()
-        print('\n === Finish TestDeleteMethod ===')
-
     @pytest.mark.parametrize('expected_file_id', [1, 2, 3, 4, 5])
     def test_delete_by_id(self, expected_file_id):
         # Prepare file for test then upload it with expected id
