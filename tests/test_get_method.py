@@ -8,7 +8,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_without_params(self):
         # get files from cloud
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         amount_of_files = len(files_for_test)
         # upload files to FileStorage
         for file in files_for_test:
@@ -24,7 +24,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_with_id(self):
         # upload file with file_id
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         list_id = [10, 20, 30, 40, 50]
         for i in range(len(files_for_test)):
             file = files_for_test[i]
@@ -54,7 +54,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_with_name(self):
         # upload file with file_id
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         list_name = ['test1', 'test2', 'test3', 'test4', 'test5']
         for i in range(len(files_for_test)):
             file = files_for_test[i]
@@ -84,7 +84,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_with_tag(self):
         # upload file with file_id
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         list_tag = ['test1', 'test2', 'test3', 'test4', 'test5']
         for i in range(len(files_for_test)):
             file = files_for_test[i]
@@ -114,7 +114,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_with_mimetype(self):
         # upload file with file_id
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         list_mimetype = ['test1', 'test2', 'test3', 'test4', 'test5']
         for i in range(len(files_for_test)):
             file = files_for_test[i]
