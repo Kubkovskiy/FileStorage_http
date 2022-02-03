@@ -8,7 +8,7 @@ class TestGetMethod(BaseCase):
 
     def test_get_without_params(self):
         # get files from cloud
-        files_for_test = self.get_files()
+        files_for_test = BaseCase.FILES_LIST
         amount_of_files = len(files_for_test)
         # upload files to FileStorage
         for file in files_for_test:
