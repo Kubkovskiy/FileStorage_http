@@ -10,7 +10,7 @@ class Assertions:
         try:
             expected_dict = response.json()
         except json.JSONDecodeError:
-            assert False, f"Response is no JSON format, response text is {response.text}"
+            raise Exception(f"Response is no JSON format, response text is {response.text}")
         assert name in expected_dict, f"Response JSON doesn't have key {name}"
         assert expected_dict[name] == expected_value, error_message
 
@@ -24,7 +24,7 @@ class Assertions:
         try:
             expected_dict = response.json()
         except json.JSONDecodeError:
-            assert False, f"Response is no JSON format, response text is {response.text}"
+            raise Exception(f"Response is no JSON format, response text is {response.text}")
         assert name in expected_dict, f"Response JSON doesn't have key {name}"
 
     @staticmethod
@@ -32,7 +32,7 @@ class Assertions:
         try:
             expected_dict = response.json()
         except json.JSONDecodeError:
-            assert False, f"Response is no JSON format, response text is {response.text}"
+            raise Exception(f"Response is no JSON format, response text is {response.text}")
         for name in names:
             assert name in expected_dict, f"Response JSON doesn't have key {name}"
 
@@ -41,7 +41,7 @@ class Assertions:
         try:
             expected_dict = response.json()
         except json.JSONDecodeError:
-            assert False, f"Response is no JSON format, response text is {response.text}"
+            raise Exception(f"Response is no JSON format, response text is {response.text}")
         for name in names:
             assert name not in expected_dict, f"Response JSON have key {name}"
 
@@ -64,4 +64,4 @@ class Assertions:
                 for name in expected_name:
                     assert name in file, f"Response JSON doesn't have key {name} in file: {file}"
         except json.JSONDecodeError:
-            assert False, f"Response is no JSON format, response text is {response.text}"
+            raise Exception(f"Response is no JSON format, response text is {response.text}")
