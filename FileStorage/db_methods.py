@@ -8,7 +8,7 @@ DB_NAME = 'FileStorage.db'
 
 
 class DBconnect:
-
+    @staticmethod
     def connect_to_db(func):
         """connect to DB and create cursor, commit, after will close connection"""
 
@@ -16,6 +16,8 @@ class DBconnect:
             self.conn = sqlite3.connect(DB_NAME)
             self.conn.row_factory = sqlite3.Row
             self.cursor = self.conn.cursor()
+            self.create_table()
+
             try:
                 res = func(self, *args, **kwargs)
                 return res
@@ -26,9 +28,11 @@ class DBconnect:
         return inner_func
 
     def __init__(self):
+        self.conn = sqlite3.connect(DB_NAME)
+        self.cursor = self.conn.cursor()
         self.create_table()
+        self.conn.close()
 
-    @connect_to_db
     def create_table(self):
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS files(
                                 id INTEGER PRIMARY KEY,
@@ -63,19 +67,20 @@ class DBconnect:
         result = [dict(i) for i in res]
         return result
 
-    @staticmethod
-    def return_next_id() -> str:
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
+    def return_next_id(self) -> str:
+        self.conn = sqlite3.connect(DB_NAME)
+        self.cursor = self.conn.cursor()
+        self.create_table()
+
         try:
             query = 'SELECT id FROM files'
-            all_id = cursor.execute(query).fetchall()
+            all_id = self.cursor.execute(query).fetchall()
             if len(all_id) == 0:
                 return '1'
-            all_id = max(cursor.execute(query).fetchall())[0]
+            all_id = max(self.cursor.execute(query).fetchall())[0]
             return all_id + 1
         finally:
-            conn.close()
+            self.conn.close()
 
     @connect_to_db
     def parse_from_db(self, params: dict = None):

@@ -10,7 +10,8 @@ def create_dir(path="uploaded_files") -> str:
     return f"{path}/"
 
 def get_name_from_file_id(file_id):
-    for file in os.scandir(UPLOADED_FILES_PATH):
+    dir_to_uploade_files = create_dir()
+    for file in os.scandir(dir_to_uploade_files):
         name, execution = os.path.splitext(file.name)
         if name == str(file_id):
             return file.path

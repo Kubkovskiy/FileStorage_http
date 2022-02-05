@@ -1,4 +1,5 @@
 import requests
+from lib.logger import Logger
 
 
 class MyRequests:
@@ -19,12 +20,13 @@ class MyRequests:
         return MyRequests._send(uri, data, method="DELETE")
 
     @staticmethod
-    def _send(uri: str, data: (dict, list) = None, headers: dict = None, file: dict = None, method: str = None):
+    def _send(uri: str, data: (dict, list) = None, headers: dict = None, file: dict = None,
+              method: str = None):
 
         url = f"http://127.0.0.1:9000/api/{uri}"
         if headers is None:
             headers = {}
-
+        Logger.add_requests(url, data, headers, method)
         if method == "GET":
             response = requests.get(url, params=data, headers=headers)
 
@@ -39,4 +41,5 @@ class MyRequests:
 
         else:
             raise Exception(f"Bad http method '{method}' was received")
+        Logger.add_response(response)
         return response

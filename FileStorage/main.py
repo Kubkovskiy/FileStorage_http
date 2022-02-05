@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from FileStorage.DBmethods import DBconnect
+from FileStorage.db_methods import DBconnect
 from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir,\
     UPLOADED_FILES_PATH
 from urllib.parse import urlparse, parse_qs
@@ -127,10 +127,10 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
 
 
 def runserver():
+    server_address = (URL, PORT)
+    server = HTTPServer(server_address, MyAwesomeHandler)
     try:
         print(f'http server is starting at address http://{URL}:{PORT}')
-        server_address = (URL, PORT)
-        server = HTTPServer(server_address, MyAwesomeHandler)
         server.serve_forever()
     except KeyboardInterrupt:
         server.server_close()

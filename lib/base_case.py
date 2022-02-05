@@ -153,7 +153,8 @@ class BaseCase:
         Assertions.assert_expected_status_code(response, 200)
         return response
 
-    def upload_file_for_test_to_file_storage(self, filename, file_id=None, name=None, tag=None, mimetype=None):
+    def upload_file_for_test_to_file_storage(self, filename, file_id=None, name=None, tag=None,
+                                             mimetype=None):
         """Prepares files on the server"""
         file_dict = BaseCase.open_file_from_upload_folder(filename)
         data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id, name=name, tag=tag,
@@ -163,8 +164,8 @@ class BaseCase:
         return response
 
     @staticmethod
-    def delete_upload_files():
-        """remove dir tests/files_for_upload"""
+    def delete_upload_files(path: str = FILES_FOR_UPLOAD):
+        f"""remove dir path = {path}"""
         BaseCase.change_dir_to_root()
-        if os.path.isdir(BaseCase.FILES_FOR_UPLOAD):
-            shutil.rmtree(BaseCase.FILES_FOR_UPLOAD)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
