@@ -4,7 +4,7 @@ import os
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from FileStorage.db_methods import DBconnect
-from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir,\
+from methods import get_name_from_file_id, query_not_valid, path_not_valid, delete_from_dir, \
     UPLOADED_FILES_PATH
 from urllib.parse import urlparse, parse_qs
 import cgi
@@ -95,7 +95,7 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         execution = os.path.splitext(self.headers.get_filename())[-1] if self.headers.get_filename() else ""
         name = params.get('name')[0] if 'name' in params else str(file_id)
         tag = params.get('tag')[0] if 'tag' in params else None
-        # загрузка в ДБ
+        # Upload in DB
         data = {'id': int(file_id), 'name': name, 'tag': tag, 'size': size, 'mimeType': content_type,
                 'modificationTime': modification_time}
 
@@ -105,7 +105,6 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         with open(UPLOADED_FILES_PATH + str(file_id) + execution, 'wb') as f:
             f.write(file)
             response = f"File '{name}'upload successfully!"
-            print(response)
         return self.write_response(201, result)
 
     def do_DELETE(self):
@@ -136,7 +135,7 @@ def runserver():
         server.server_close()
 
 
-def stopserver():
+def stop_server():
     server_address = (URL, PORT)
     server = HTTPServer(server_address, MyAwesomeHandler)
     server.server_close()

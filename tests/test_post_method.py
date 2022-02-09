@@ -12,7 +12,6 @@ class TestPostMethod(BaseCase):
         # files = BaseCase.get_files()
         data, headers, payload = self.set_data_to_post_method(file_dict)
         response = MyRequests.post("upload", data, headers, payload)
-        # # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         r_name, r_id, r_tag = response.json()['name'], response.json()['id'], response.json()['tag']
@@ -29,7 +28,6 @@ class TestPostMethod(BaseCase):
         file_dict = self.open_file_from_upload_folder(file_for_test)
         data, headers, payload = self.set_data_to_post_method(file_dict, content_type=ctype)
         response = MyRequests.post("upload", data, headers, payload)
-        # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         mime_type = response.json()['mimeType']
@@ -44,7 +42,6 @@ class TestPostMethod(BaseCase):
         file_dict = self.open_file_from_upload_folder(file_for_test)
         data, headers, payload = self.set_data_to_post_method(file_dict, file_id=file_id)
         response = MyRequests.post("upload", data, headers, payload)
-        # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         r_name, r_id = response.json()['name'], response.json()['id']
@@ -58,7 +55,6 @@ class TestPostMethod(BaseCase):
         file_dict = self.open_file_from_upload_folder(file_for_test)
         data, headers, payload = self.set_data_to_post_method(file_dict, name=name, content_type='auto')
         response = MyRequests.post("upload", data, headers, payload)
-        # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         exp_name = name
@@ -72,7 +68,6 @@ class TestPostMethod(BaseCase):
         file_dict = self.open_file_from_upload_folder(file_for_test)
         data, headers, payload = self.set_data_to_post_method(file_dict, tag=tag, content_type='auto')
         response = MyRequests.post("upload", data, headers, payload)
-        # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         exp_tag = tag
@@ -92,7 +87,6 @@ class TestPostMethod(BaseCase):
                                                               tag=tag,
                                                               content_type='auto')
         response = MyRequests.post("upload", data, headers, payload)
-        # print(response.json())
         Assertions.base_assertions_for_positive_post_method(response)
         # Check id equal name
         r_dict = response.json()

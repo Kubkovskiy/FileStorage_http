@@ -108,7 +108,6 @@ class TestDeleteMethod(BaseCase):
         # Prepare file for test then upload it with expected mimeType
         file_for_test = self.get_files()[0]
         response = self.upload_file_for_test_to_file_storage(filename=file_for_test)
-        print(response.json())
         modification_time_from_response = response.json()['modificationTime']
 
         # delete file by expected mimeType
