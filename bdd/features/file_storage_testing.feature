@@ -19,7 +19,7 @@ Feature: Testing POST method
     And Response http code should be 201
     And Response content should have base keys "id, name, tag, size, mimeType, modificationTime"
 
-    Examples: File names
+    Examples: Different files
       | file_name  |
       | test1.docx |
       | test2.xlsx |
@@ -47,7 +47,7 @@ Feature: Testing POST method
 
   Scenario Outline: testing POST method with given content type
     When Set "content type" as "<content type>"
-    And Set file "<file_name>" as body
+    And Set file "<files>" as body
     Then Raise "POST" HTTP request
     And Response content should be JSON format
     And Response http code should be 201
@@ -55,7 +55,7 @@ Feature: Testing POST method
     And Response content "mimeType" should be "<content type>"
 
     Examples: Set content type for each file
-      | file_name  | content type                                                            |
+      | files      | content type                                                            |
       | test1.docx | application/vnd.openxmlformats-officedocument.wordprocessingml.document |
       | test2.xlsx | application/vnd.openxmlformats-officedocument.spreadsheetml.sheet       |
       | test3.txt  | text/plain                                                              |
@@ -72,10 +72,9 @@ Feature: Testing POST method
     And Response http code should be 201
     And Response content should have base keys "id, name, tag, size, mimeType, modificationTime"
     And Response content "name" should be "<test_name>"
-    Examples: File names
+    Examples: Different File names
       | test_name |
       | name1     |
       | foo       |
       | bar       |
       | 1234      |
-

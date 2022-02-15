@@ -10,9 +10,7 @@ http_request_file = {}
 http_request_data = {"file_id": None, "name": None, "tag": None, "content_type": None}
 
 
-#
-################################################# Background #################################################
-
+# Background
 @given('Set base server url as "{base_server_url}"')
 def step_impl(contex, base_server_url):
     global_variables['base_server_url'] = base_server_url
@@ -40,8 +38,7 @@ def step_impl(contex, link_to_test_files):
     global_variables['url_to_archive'] = link_to_test_files
 
 
-##############################################################################################################
-
+# end Background
 
 @given(u'Set api endpoint as "{endpoint}"')
 def step_impl(context, endpoint):
@@ -79,7 +76,6 @@ def step_impl(context, key, value):
 def step_impl(context, file_name):
     file_dict = BaseCase.open_file_from_upload_folder(file_name)
     http_request_file.update(file_dict)
-
 
 
 @then(u'Raise "{http_request_type}" HTTP request')
@@ -129,6 +125,6 @@ def step_impl(context, key, value):
 def step_impl(context):
     response = context.response
     try:
-        expected_dict = response.json()
+        response.json()
     except json.JSONDecodeError:
         raise Exception(f"Response is no JSON format, response text is {response.text}")
