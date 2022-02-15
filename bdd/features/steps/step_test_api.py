@@ -81,6 +81,7 @@ def step_impl(context, file_name):
     http_request_file.update(file_dict)
 
 
+
 @then(u'Raise "{http_request_type}" HTTP request')
 def step_impl(context, http_request_type):
     http_request_type = http_request_type.lower()
