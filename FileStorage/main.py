@@ -8,6 +8,7 @@ from methods import get_name_from_file_id, query_not_valid, path_not_valid, dele
     UPLOADED_FILES_PATH
 from urllib.parse import urlparse, parse_qs
 import cgi
+import magic
 
 PORT = 9000
 URL = '127.0.0.1'
@@ -80,8 +81,11 @@ class MyAwesomeHandler(BaseHTTPRequestHandler):
         ctype, pdict = cgi.parse_header(self.headers['Content-Type'])
         pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
         params = cgi.parse_multipart(self.rfile, pdict)
-        content_type = params.get('content-type')[0] if 'content-type' in params else ctype
         file = params.get('file')[0]
+        magic_ctype = magic.Magic(mime=True)
+        auto_content_type = magic_ctype.from_buffer(file)
+        content_type = params.get('content-type')[0] if 'content-type' in params else auto_content_type
+
         # if id in data - delete file from folder and save again, then set file_id
         if 'id' in params:
             file_id = params.get('id')[0]

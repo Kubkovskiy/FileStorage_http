@@ -1,5 +1,6 @@
-requests~=2.26.0
+requests
 allure-pytest
 pytest
-python-magic
+python-magic~=0.4.25
 python-magic-bin
+behave
